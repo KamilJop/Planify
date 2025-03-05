@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Box } from '@/components/ui/box';
-import { Text } from '@/components/ui/text';
 import { Input, InputField, InputSlot, InputIcon } from '@/components/ui/input';
 import {
   FormControl,
