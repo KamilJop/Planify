@@ -14,9 +14,14 @@ import {
   FormControlHelperText,
 } from '@/components/ui/form-control';
 import { AlertCircleIcon, EyeIcon, EyeOffIcon } from '@/components/ui/icon';
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
 import { router } from 'expo-router';
-
+import { Text } from '@/components/ui/text';
+import { HStack } from '@/components/ui/hstack';
+import { Pressable } from '@/components/ui/pressable';
+import { Image } from '@/components/ui/image';
+const googleIcon = require('@/assets/images/google.svg');
+const githubIcon = require('@/assets/images/github.svg');
 const Register = () => {
   const [username, setUsername] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -56,9 +61,9 @@ const Register = () => {
   };
 
   return (
-    <SafeAreaView className="p-4 bg-app-background2">
+    <SafeAreaView className="p-4 ">
       <View className="justify-center content-center w-full h-full">
-        <Box className="p-6 rounded-lg shadow-lg gap-1 bg-app-background">
+        <Box className="p-6 rounded-lg  gap-1 border-solid border-2 ">
           {/* Username Field */}
           <FormControl isInvalid={isInvalidLogin} size="md">
             <FormControlLabel>
@@ -157,9 +162,27 @@ const Register = () => {
           </FormControl>
 
           {/* Register Button */}
-          <Button onPress={handleLogin} className="mt-4 bg-red-50"  variant="outline">
+          <Button onPress={handleLogin} className="mt-4 bg-slate-100"  variant="outline">
             <ButtonText>Register</ButtonText>
           </Button>
+
+          <Text className="text-center mt-4 text-gray-600">
+            Already have an account?{' '}
+            <Text onPress={() => router.push('../(auth)/login')} className="text-blue-600">
+              Login
+            </Text>
+          </Text>
+          <Text className="text-center mt-4 text-gray-600">
+            Or sign up using social media
+          </Text>
+          <View className="flex flex-row justify-center items-center mt-6">
+            <Pressable onPress={() => router.push('../(tabs)/index')} className="mx-2">
+              <Image source={googleIcon} alt='google' className='w-16 h-16' />
+            </Pressable>
+            <Pressable onPress={() => router.push('../(tabs)/index')} className="mx-2">
+              <Image source={githubIcon} alt='github' className='w-16 h-16'/>
+            </Pressable>
+          </View>
         </Box>
       </View>
     </SafeAreaView>
