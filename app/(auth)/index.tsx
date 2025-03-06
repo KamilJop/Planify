@@ -4,7 +4,7 @@ import { Link } from 'expo-router'
 
 const LoginScreen = () => {
   return (
-    <View>
+    <View className='justify-center content-center w-full h-full'>
       <Link href="/(auth)/register">Register</Link>
     </View>
   )
