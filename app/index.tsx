@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Lottie from "lottie-react-native";
 import { Dimensions } from 'react-native';
 import { router } from 'expo-router';
+import LoginScreen from './(auth)/login';
 const {width, height} = Dimensions.get('window');
 const onHandle = () => {
     router.push('/(auth)/register')
@@ -13,8 +14,19 @@ const index = () => {
   return (
     <SafeAreaView className='justify-center content-center w-full h-full'>
       <Onboarding containerStyles={{paddingHorizontal: 20}}
-        onSkip={onHandle}
-        onDone={onHandle}
+        skipToPage={4}
+        showDone={false}
+        DotComponent={({selected}) => (
+            <View
+                style={{
+                    width: selected ? 8 : 5,
+                    height: 5,
+                    borderRadius: 5,
+                    marginHorizontal: 3,
+                    backgroundColor: selected ? '#000' : '#ccc',
+                }}
+            />
+        )}
         pages={[
             {
             backgroundColor: '#a7f2b7',
@@ -42,7 +54,12 @@ const index = () => {
                 title: 'Insights & Summaries',
                 subtitle: 'Review interactive charts to see your productivity over weeks, months, and years',
             },
-                
+            {
+                backgroundColor: '#ff6b6b',
+                image: (<LoginScreen />),
+                title: 'Get Started!',
+                subtitle: 'Sign up now to start planning your day with Planify',
+            }   
 
         ]}
         />
