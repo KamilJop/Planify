@@ -10,6 +10,8 @@ const {width, height} = Dimensions.get('window');
 const onHandle = () => {
     router.push('/(auth)/register')
 }
+
+
 const index = () => {
   return (
     <SafeAreaView className='justify-center content-center w-full h-full'>

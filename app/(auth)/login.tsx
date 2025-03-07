@@ -34,7 +34,7 @@ const LoginScreen = () => {
   };
   const handleLogin = () => {
     if (username === 'admin' && password === 'admin') {
-      router.push('../(tabs)/index');
+      router.push('../(tabs)');
     } else {
       console.log('Invalid credentials. Please try again.');
       showToast();
@@ -64,7 +64,7 @@ const LoginScreen = () => {
               </Pressable>
               <Pressable
                 className='bg-green-500 p-5 rounded-lg'
-                onPress={() => router.push('../(tabs)/index')}>
+                onPress={() => router.push('../(tabs)')}>
                 <Text style={styles.textStyle}>Continue as guest</Text>
               </Pressable>
             
@@ -122,10 +122,13 @@ const LoginScreen = () => {
         <Text className="text-xs ml-1">Or sign in using social media</Text>
       </View>
       <View className="flex flex-row justify-center items-center mt-6">
-            <Pressable onPress={() => router.push('../(tabs)/index')} className="mx-2">
+
+
+            <Pressable onPress={() => router.push('../(tabs)')} className="mx-2">
               <Image source={googleIcon} alt='google' className='w-16 h-16' />
             </Pressable>
-            <Pressable onPress={() => router.push('../(tabs)/index')} className="mx-2">
+            <Pressable onPress={() => router.push('../(tabs)')} className="mx-2">
+
               <Image source={githubIcon} alt='github' className='w-16 h-16'/>
             </Pressable>
           </View>
