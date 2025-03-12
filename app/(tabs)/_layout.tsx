@@ -4,7 +4,7 @@ import { Image } from 'react-native';
 const homeIcon = require('@/assets/icons/calendar.png');
 export default function TabLayout() {
   return (
-    <Tabs>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({color,size}) => (
         <Image source={require('@/assets/icons/user.png')} style={{width: size, height: size, tintColor: color}}/>
       ) }}/>
