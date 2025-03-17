@@ -1,7 +1,16 @@
 import { View, Text, FlatList, Dimensions, TouchableOpacity, Modal, Pressable } from 'react-native';
 import React, { useMemo, useState } from 'react';
 import { Button, ButtonIcon, ButtonText } from './ui/button';
-import { AddIcon } from './ui/icon';
+import { AddIcon, BellIcon, CheckIcon, CircleIcon } from './ui/icon';
+import { Radio, RadioGroup, RadioIndicator, RadioLabel,RadioIcon,
+} from "@/components/ui/radio"
+import RadioButton from './radiobutton';
+import { HStack } from './ui/hstack';
+import { Input, InputField } from './ui/input';
+import { FormControlLabel, FormControl, FormControlLabelText } from './ui/form-control';
+import DateTimePicker, { DateType, useDefaultStyles } from 'react-native-ui-datepicker';
+
+
 
 const { width } = Dimensions.get('window');
 
@@ -12,11 +21,21 @@ const MonthView = ({ month, year }: { month: number; year: number }) => {
   const [selectedDay, setSelectedDay] = useState<Date | null>(isCurrentMonth ? today : null); // Initialize selectedDay with today's date if it's the current month
   const [assignments, setAssignments] = useState<{ [key: string]: string[] }>({}); // Store assignments for each day
   const [modalVisible, setModalVisible] = useState(false);
+  const [values, setValues] = useState("Sport");
+  const [eventName, setEventName] = useState('');
+  const RadioData = [
+    { value : "Sport" },
+    { value : "Work" },
+    { value : "Study" },
+    { value : "Family" },
+  ]
+  const defaultStyles = useDefaultStyles();
+  const [selected, setSelected] = useState<DateType>();
   const days = useMemo(() => {
     const startDate = new Date(year, month, 1); // First day of the month
     const endDate = new Date(year, month + 1, 0); // Last day of the month
     const daysArray = [];
-
+    
     // Add padding days from the previous month
     const startDayOfWeek = startDate.getDay(); // Day of the week for the first day of the month (0 = Sunday, 6 = Saturday)
     for (let i = 0; i < startDayOfWeek; i++) {
@@ -83,8 +102,21 @@ const MonthView = ({ month, year }: { month: number; year: number }) => {
           style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' }}
         >
           {/* Modal Content */}
-          <View className="bg-white p-6 rounded-lg w-80">
+          <View className="bg-white p-6 rounded-lg w-80 items-center justify-center">
             <Text className="text-lg font-bold mb-4">Add Assignment</Text>
+            <RadioButton data={RadioData} onSelect={()=> console.log("test")} />
+            <FormControl size="md">
+              <FormControlLabel>
+                <FormControlLabelText className="font-bold text-xl">Enter assignments name</FormControlLabelText>
+              </FormControlLabel>
+              <Input size="md">
+                <InputField
+                  type="text"
+                  placeholder="Random stuff"
+                  onChangeText={(text) => setEventName(text)}
+                  value={eventName}/>
+              </Input>
+            </FormControl>
             <Pressable onPress={() => setModalVisible(false)}>
               <Text className="text-blue-500">Close</Text>
             </Pressable>
@@ -133,7 +165,12 @@ const MonthView = ({ month, year }: { month: number; year: number }) => {
           })}
         </View>
       </View>
-
+      <DateTimePicker
+      mode="single"
+      date={selected}
+      onChange={({ date }) =>  setSelected(date)}
+      styles={defaultStyles}
+    />
       {/* Selected Day Assignments */}
       {selectedDay && (
         <View className="m-4 p-4 border-dotted border-2 border-gray-500 rounded-lg">
