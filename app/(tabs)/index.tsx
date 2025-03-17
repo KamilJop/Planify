@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 type Assignment = {
   title: string;
   description: string;
-  date: string; // YYYY-MM-DD
+  date: string; 
 };
 
 const width = Dimensions.get('window').width;
