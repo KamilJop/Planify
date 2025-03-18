@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Dimensions, Modal, TextInput, Pressable, ScrollView } from 'react-native';
 import DateTimePicker, { useDefaultClassNames, DateType } from 'react-native-ui-datepicker';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
-import { AddIcon } from '@/components/ui/icon';
+import { AddIcon, TrashIcon } from '@/components/ui/icon';
 import dayjs, { Dayjs } from 'dayjs';
 import { format } from 'date-fns';
 import RadioButton from '@/components/radiobutton';
@@ -76,6 +76,13 @@ export default function HomeScreen() {
 
   const handleAddAssignment = () => {
     if (!selected || !newAssignment.title.trim()) return;
+    if (displayTime === ''){
+      const currentTime = time;
+      setTime(currentTime);
+      const hours = currentTime.getHours();
+      const minutes = currentTime.getMinutes();
+      setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
+    }
 
     const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
     const updated = {
@@ -98,6 +105,15 @@ export default function HomeScreen() {
     setTimeArray(['1', '2', '0', '0']);
     setDisplayTime('');
     setIsModalVisible(false);
+  };
+  
+  const handleDeleteAssignment = (assignment: Assignment) => {
+    const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
+    const updated = {
+      ...assignments,
+      [dateKey]: (assignments[dateKey] || []).filter((a) => a !== assignment),
+    };
+    setAssignments(updated);
   };
 
   const selectedDateKey = selected ? format(convertToDate(selected), 'yyyy-MM-dd') : '';
@@ -163,9 +179,19 @@ export default function HomeScreen() {
                       >
                         <Text className="font-bold text-white">{assignment.time}</Text>
                       </View>
-                      <View className="flex-1 p-3 rounded-lg" style={{ backgroundColor: RadioColors[assignment.type] || '#CCCCCC' }}>
-                        <Text className="font-bold text-base">{assignment.title}</Text>
-                        <Text className="text-sm text-gray-600">{assignment.description}</Text>
+                      <View className="flex-1 p-3 rounded-lg" style={{ backgroundColor: RadioColors[assignment.type as keyof typeof RadioColors] || '#CCCCCC' }}>
+                        <View className='flex-row'>
+                          <View className='flex-1'>
+                            <Text className="font-bold text-base">{assignment.title}</Text>
+                            <Text className="text-sm text-gray-600">{assignment.description}</Text>
+                          </View>
+                          <View>
+                            <Button onPress={() => handleDeleteAssignment(assignment)}>
+                              <ButtonIcon as={TrashIcon} size="md" className="w-6 h-6 text-black font-bold"/>
+                            </Button>
+               
+                          </View>
+                        </View>
                       </View>
                     </View>
                   ))}
