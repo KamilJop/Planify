@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
-import { useState } from 'react';
+
 const icons = {
   Sport: {
     selected: require('@/assets/icons/settings.png'),
@@ -20,17 +20,15 @@ const icons = {
   },
 };
 
-export default function RadioButton({ data, onSelect }) {
-  const [userOption, setUserOption] = useState(null);
-
+export default function RadioButton({ data, onSelect, value }) {
   return (
     <View>
       <View className="flex-row gap-5">
         {data.map((item, index) => {
-          const isSelected = item.value === userOption;
+          const isSelected = item.value === value;
           return (
             <View key={index} className="items-center justify-center">
-              <Pressable onPress={() => setUserOption(item.value)}>
+              <Pressable onPress={() => onSelect(item.value)}>
                 <Image 
                   source={isSelected ? icons[item.value].selected : icons[item.value].unselected} 
                   className="w-10" 
@@ -42,7 +40,7 @@ export default function RadioButton({ data, onSelect }) {
           );
         })}
       </View>
-      <Text>User option: {userOption}</Text>
+      
     </View>
   );
 }
