@@ -141,6 +141,7 @@ export default function HomeScreen() {
             className="bg-green-200 p-4 rounded-3xl mt-8"
             classNames={{
               ...defaultClassNames,
+              day_cell: '',
               month_selector_label: 'text-3xl font-bold ml-2',
               year_selector_label: 'text-3xl font-bold mr-2',
               button_next: 'rounded-lg w-8 h-8 flex items-center justify-center bg-green-100',
@@ -157,7 +158,7 @@ export default function HomeScreen() {
           />
 
           {selected && (
-            <View className="m-4 p-4 border-dotted border-2 border-gray-500 rounded-lg">
+            <View className="mt-8 p-4 border-dotted border-2 border-gray-500 rounded-lg">
               <View className="flex-row items-center justify-between mb-4">
                 <Text className="font-bold text-lg">
                   Assignments for {format(convertToDate(selected), 'MMM dd, yyyy')}
@@ -203,20 +204,20 @@ export default function HomeScreen() {
 
         <Modal visible={isModalVisible} transparent animationType="fade">
           <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="bg-white p-6 rounded-2xl w-80">
+            <View className="bg-white p-6 rounded-2xl w-80 items-center justify-center">
               <Text className="text-xl font-bold mb-4">New Assignment</Text>
               <RadioButton data={RadioData} onSelect={setAssignmenTypeSelected} value={assignmentTypeSelected} />
               <TextInput
                 placeholder="Title *"
                 value={newAssignment.title}
                 onChangeText={(text) => setNewAssignment((p) => ({ ...p, title: text }))}
-                className="mb-4 p-2 border-b-2 border-gray-200"
+                className="mb-4 p-2 border-b-2 border-gray-200 min-w-40"
               />
               <TextInput
                 placeholder="Description"
                 value={newAssignment.description}
                 onChangeText={(text) => setNewAssignment((p) => ({ ...p, description: text }))}
-                className="mb-6 p-2 border-b-2 border-gray-200"
+                className="mb-6 p-2 border-b-2 border-gray-200 min-w-40"
                 multiline
               />
               <Pressable onPress={() => showTimePicker()}>
