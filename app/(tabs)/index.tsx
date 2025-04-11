@@ -1,8 +1,17 @@
 import { useState } from 'react';
-import { View, Text, Dimensions, Modal, TextInput, Pressable, ScrollView } from 'react-native';
-import DateTimePicker, { useDefaultClassNames, DateType } from 'react-native-ui-datepicker';
+import {
+  View,
+  Text,
+  Dimensions,
+  Modal,
+  TextInput,
+  Pressable,
+  ScrollView,
+  ViewStyle,
+} from 'react-native';
+import DateTimePicker, { useDefaultStyles, DateType } from 'react-native-ui-datepicker';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
-import { AddIcon } from '@/components/ui/icon';
+import { AddIcon, TrashIcon } from '@/components/ui/icon';
 import dayjs, { Dayjs } from 'dayjs';
 import { format } from 'date-fns';
 import RadioButton from '@/components/radiobutton';
@@ -28,7 +37,7 @@ const RadioColors = {
 };
 
 export default function HomeScreen() {
-  const defaultClassNames = useDefaultClassNames();
+  const defaultStyles = useDefaultStyles();
   const [selected, setSelected] = useState<DateType | Dayjs>(dayjs());
   const [assignments, setAssignments] = useState<Record<string, Assignment[]>>({});
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -76,7 +85,13 @@ export default function HomeScreen() {
 
   const handleAddAssignment = () => {
     if (!selected || !newAssignment.title.trim()) return;
-
+    if (displayTime === '') {
+      const currentTime = time;
+      setTime(currentTime);
+      const hours = currentTime.getHours();
+      const minutes = currentTime.getMinutes();
+      setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
+    }
     const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
     const updated = {
       ...assignments,
@@ -90,7 +105,6 @@ export default function HomeScreen() {
         },
       ],
     };
-
     setAssignments(updated);
     setNewAssignment({ title: '', description: '' });
     setAssignmenTypeSelected('');
@@ -100,19 +114,35 @@ export default function HomeScreen() {
     setIsModalVisible(false);
   };
 
+  const handleDeleteAssignment = (assignment: Assignment) => {
+    const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
+    const updated = {
+      ...assignments,
+      [dateKey]: (assignments[dateKey] || []).filter((a) => a !== assignment),
+    };
+    setAssignments(updated);
+  };
+
   const selectedDateKey = selected ? format(convertToDate(selected), 'yyyy-MM-dd') : '';
   const selectedDateAssignments = assignments[selectedDateKey] || [];
 
-  // Sort assignments by time
+  // Sort assignments by time (ascending)
   const sortedAssignments = selectedDateAssignments.sort((a, b) => {
-    const timeA = parseInt(a.time.replace(':', ''), 10); // Convert "09:00" to 900
-    const timeB = parseInt(b.time.replace(':', ''), 10); // Convert "10:00" to 1000
-    return timeA - timeB; // Sort in ascending order
+    const timeA = parseInt(a.time.replace(':', ''), 10);
+    const timeB = parseInt(b.time.replace(':', ''), 10);
+    return timeA - timeB;
   });
 
   return (
     <ScrollView>
-      <View className="justify-center items-center w-full h-full" style={{ minHeight: Dimensions.get('window').height }}>
+      <View
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          minHeight: Dimensions.get('window').height,
+        }}
+      >
         <View style={{ width: width * 0.9 }}>
           <DateTimePicker
             mode="single"
@@ -122,50 +152,126 @@ export default function HomeScreen() {
             showOutsideDays={true}
             firstDayOfWeek={1}
             navigationPosition="right"
-            className="bg-green-200 p-4 rounded-3xl mt-8"
-            classNames={{
-              ...defaultClassNames,
-              month_selector_label: 'text-3xl font-bold ml-2',
-              year_selector_label: 'text-3xl font-bold mr-2',
-              button_next: 'rounded-lg w-8 h-8 flex items-center justify-center bg-green-100',
-              button_prev: 'rounded-lg w-8 h-8 flex items-center justify-center bg-green-100',
-              weekdays: 'border-black-100 border-b-2',
-              weekday_label: 'font-bold',
-              today: 'border-amber-500',
-              selected: 'border-green-400 border-4 rounded-full',
-              selected_label: 'text-black font-bold',
-              day: `${defaultClassNames.day} hover:bg-amber-100`,
-              disabled: 'opacity-50',
-              outside: 'opacity-50',
+            style={{ backgroundColor: '#D1FAE5', padding: 16, borderRadius: 24, marginTop: 32 }}
+            styles={{
+              ...defaultStyles,
+              month_selector_label: { fontSize: 24, fontWeight: 'bold', marginLeft: 8 },
+              year_selector_label: { fontSize: 24, fontWeight: 'bold', marginRight: 8 },
+              button_next: {
+                borderRadius: 8,
+                width: 32,
+                height: 32,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#D1FAE5',
+              },
+              button_prev: {
+                borderRadius: 8,
+                width: 32,
+                height: 32,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#D1FAE5',
+              },
+              weekdays: { borderBottomWidth: 2, borderBottomColor: '#000000' },
+              weekday_label: { fontWeight: 'bold' },
+              today: { borderColor: '#F59E0B', borderWidth: 1 },
+              selected: { borderColor: '#34D399', borderWidth: 4, borderRadius: 999 },
+              selected_label: { color: '#000000', fontWeight: 'bold' },
+              // Dynamic day style function cast to any so that a plain style object is provided
+              day: ((date: DateType | Dayjs): ViewStyle => {
+                const safeDefault: any = defaultStyles.day ?? {};
+                if (safeDefault.cursor) {
+                  delete safeDefault.cursor;
+                }
+                return { ...safeDefault, ...customDayStyle(date) };
+              }) as any,
+              disabled: { opacity: 0.5 },
+              outside: { opacity: 0.5 },
             }}
           />
 
           {selected && (
-            <View className="m-4 p-4 border-dotted border-2 border-gray-500 rounded-lg">
-              <View className="flex-row items-center justify-between mb-4">
-                <Text className="font-bold text-lg">
+            <View
+              style={{
+                marginTop: 32,
+                padding: 16,
+                borderWidth: 1,
+                borderStyle: 'dotted',
+                borderColor: 'gray',
+                borderRadius: 8,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                }}
+              >
+                <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
                   Assignments for {format(convertToDate(selected), 'MMM dd, yyyy')}
                 </Text>
                 <Button onPress={() => setIsModalVisible(true)}>
-                  <ButtonIcon as={AddIcon} size="md" className="w-6 h-6 text-black font-bold" />
+                  <ButtonIcon
+                    as={AddIcon}
+                    size="md"
+                    style={{ width: 24, height: 24, color: 'black' }}
+                  />
                 </Button>
               </View>
 
               {sortedAssignments.length === 0 ? (
-                <Text className="text-gray-500">No assignments for this day</Text>
+                <Text style={{ color: 'gray' }}>No assignments for this day</Text>
               ) : (
                 <View>
                   {sortedAssignments.map((assignment, index) => (
-                    <View key={index} className="flex-row gap-4 mb-3">
+                    <View key={index} style={{ flexDirection: 'row', marginBottom: 12 }}>
                       <View
-                        className="items-center justify-center rounded-lg"
-                        style={{ backgroundColor: 'gray', width: 60, height: 60 }}
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 8,
+                          backgroundColor: 'gray',
+                          width: 60,
+                          height: 60,
+                        }}
                       >
-                        <Text className="font-bold text-white">{assignment.time}</Text>
+                        <Text style={{ fontWeight: 'bold', color: 'white' }}>
+                          {assignment.time}
+                        </Text>
                       </View>
-                      <View className="flex-1 p-3 rounded-lg" style={{ backgroundColor: RadioColors[assignment.type] || '#CCCCCC' }}>
-                        <Text className="font-bold text-base">{assignment.title}</Text>
-                        <Text className="text-sm text-gray-600">{assignment.description}</Text>
+                      <View
+                        style={{
+                          flex: 1,
+                          padding: 12,
+                          borderRadius: 8,
+                          backgroundColor:
+                            RadioColors[assignment.type as keyof typeof RadioColors] ||
+                            '#CCCCCC',
+                          marginLeft: 8,
+                        }}
+                      >
+                        <View style={{ flexDirection: 'row' }}>
+                          <View style={{ flex: 1 }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
+                              {assignment.title}
+                            </Text>
+                            <Text style={{ fontSize: 14, color: 'gray' }}>
+                              {assignment.description}
+                            </Text>
+                          </View>
+                          <View>
+                            <Button onPress={() => handleDeleteAssignment(assignment)}>
+                              <ButtonIcon
+                                as={TrashIcon}
+                                size="md"
+                                style={{ width: 24, height: 24, color: 'black' }}
+                              />
+                            </Button>
+                          </View>
+                        </View>
                       </View>
                     </View>
                   ))}
@@ -176,34 +282,73 @@ export default function HomeScreen() {
         </View>
 
         <Modal visible={isModalVisible} transparent animationType="fade">
-          <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="bg-white p-6 rounded-2xl w-80">
-              <Text className="text-xl font-bold mb-4">New Assignment</Text>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: 'white',
+                padding: 24,
+                borderRadius: 16,
+                width: 320,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>
+                New Assignment
+              </Text>
               <RadioButton data={RadioData} onSelect={setAssignmenTypeSelected} value={assignmentTypeSelected} />
               <TextInput
                 placeholder="Title *"
                 value={newAssignment.title}
-                onChangeText={(text) => setNewAssignment((p) => ({ ...p, title: text }))}
-                className="mb-4 p-2 border-b-2 border-gray-200"
+                onChangeText={(text) =>
+                  setNewAssignment((prev) => ({ ...prev, title: text }))
+                }
+                style={{
+                  marginBottom: 16,
+                  padding: 8,
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                  minWidth: 160,
+                }}
               />
               <TextInput
                 placeholder="Description"
                 value={newAssignment.description}
-                onChangeText={(text) => setNewAssignment((p) => ({ ...p, description: text }))}
-                className="mb-6 p-2 border-b-2 border-gray-200"
+                onChangeText={(text) =>
+                  setNewAssignment((prev) => ({ ...prev, description: text }))
+                }
+                style={{
+                  marginBottom: 24,
+                  padding: 8,
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                  minWidth: 160,
+                }}
                 multiline
               />
-              <Pressable onPress={() => showTimePicker()}>
-                <View className="flex-row items-center justify-center mb-4 gap-1">
+              <Pressable onPress={showTimePicker}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 16,
+                  }}
+                >
                   <HourBox value={timeArray[0]} />
                   <HourBox value={timeArray[1]} />
-                  <Text className="text-xl font-bold">:</Text>
+                  <Text style={{ fontSize: 20, fontWeight: 'bold' }}>:</Text>
                   <HourBox value={timeArray[2]} />
                   <HourBox value={timeArray[3]} />
                 </View>
               </Pressable>
-
-              <View className="flex-row justify-end gap-4">
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%' }}>
                 <Button variant="outline" onPress={() => setIsModalVisible(false)}>
                   <ButtonText>Cancel</ButtonText>
                 </Button>
