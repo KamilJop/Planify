@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import RadioButton from '@/components/radiobutton';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import HourBox from '@/components/hourbox';
+import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 
 type Assignment = {
   title: string;
@@ -178,18 +179,13 @@ export default function HomeScreen() {
               today: { borderColor: '#F59E0B', borderWidth: 1 },
               selected: { borderColor: '#34D399', borderWidth: 4, borderRadius: 999 },
               selected_label: { color: '#000000', fontWeight: 'bold' },
-              // Dynamic day style function cast to any so that a plain style object is provided
-              day: ((date: DateType | Dayjs): ViewStyle => {
-                const safeDefault: any = defaultStyles.day ?? {};
-                if (safeDefault.cursor) {
-                  delete safeDefault.cursor;
-                }
-                return { ...safeDefault, ...customDayStyle(date) };
-              }) as any,
               disabled: { opacity: 0.5 },
               outside: { opacity: 0.5 },
             }}
           />
+          <Calendar>
+            
+          </Calendar>
 
           {selected && (
             <View
