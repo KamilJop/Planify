@@ -4,11 +4,9 @@ import Onboarding from 'react-native-onboarding-swiper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Lottie from "lottie-react-native";
 import { Dimensions } from 'react-native';
-
 import { Link, router } from 'expo-router';
 import LoginScreen from './(auth)/login';
 const {width, height} = Dimensions.get('window');
-
 
 const index = () => {
   return (

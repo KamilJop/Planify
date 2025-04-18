@@ -21,6 +21,7 @@ import HourBox from '@/components/hourbox';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { DateData } from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 type Assignment = {
   title: string;
   description: string;
@@ -32,10 +33,14 @@ type Assignment = {
 const width = Dimensions.get('window').width;
 
 const RadioColors = {
-  Sport: '#FF0000', 
-  Work: '#00FF00',  
-  Study: '#0000FF', 
-  Family: '#FFFF00', 
+  Sport: 'red',
+  Work: 'green',
+  Study: 'blue',
+  Family: 'orange',
+  Travel: 'purple',
+  Relax: 'pink',
+  Social: 'yellow',
+  Hobby: 'cyan',
 };
 
 export default function HomeScreen() {
@@ -93,6 +98,10 @@ export default function HomeScreen() {
     { value: 'Work' },
     { value: 'Study' },
     { value: 'Family' },
+    { value: 'Travel' },
+    { value: 'Relax' },
+    { value: 'Social' },
+    { value: 'Hobby' },
   ];
 
   const convertToDate = (date: DateType | Dayjs): Date => {
@@ -153,6 +162,49 @@ export default function HomeScreen() {
     return timeA - timeB;
   });
 
+  const icons = {
+    Sport: {
+      iconSet: AntDesign,
+      name: 'dribbble',
+      color: 'red',
+    },
+    Work: {
+      iconSet: MaterialIcons,
+      name: 'work',
+      color: 'green',
+    },
+    Study: {
+      iconSet: FontAwesome,
+      name: 'book',
+      color: 'blue',
+    },
+    Family: {
+      iconSet: AntDesign,
+      name: 'home',
+      color: 'orange',
+    },
+    Travel: {
+      iconSet: MaterialIcons,
+      name: 'flight-takeoff',
+      color: 'purple',
+    },
+    Relax: {
+      iconSet: FontAwesome,
+      name: 'bed',
+      color: 'pink',
+    },
+    Social: {
+      iconSet: AntDesign,
+      name: 'team',
+      color: 'yellow',
+    },
+    Hobby: {
+      iconSet: MaterialIcons,
+      name: 'palette',
+      color: 'cyan',
+    },
+  };
+
   return (
     <ScrollView>
       <View
@@ -178,28 +230,30 @@ export default function HomeScreen() {
               ...Object.keys(assignments).reduce((acc, date) => {
                 acc[date] = { marked: true };
                 return acc;
-              }, {} as Record<string, { marked: boolean }>),
-              [format(convertToDate(selected), 'yyyy-MM-dd')]: {
-                selected: true,
-                selectedColor: '#34D399',
-                marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
+                }, {} as Record<string, { marked: boolean }>),
+                ...(selected && {
+                  [format(convertToDate(selected), 'yyyy-MM-dd')]: {
+                  selected: true,
+                  selectedColor: '#34D399',
+                  marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
+                  dotColor: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0
+                    ? RadioColors[assignments[format(convertToDate(selected), 'yyyy-MM-dd')][0].type as keyof typeof RadioColors]
+                    : 'black',
+                  },
+                }),
+                }}
+                theme={{
+                selectedDayBackgroundColor: '#34D399',
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: '#F59E0B',
                 dotColor: 'black',
-              },
-            }}
-            theme={{
-              selectedDayBackgroundColor: '#34D399',
-              selectedDayTextColor: '#ffffff',
-              todayTextColor: '#F59E0B',
-              dotColor: 'black',
-              arrowColor: '#10B981',
-              textSectionTitleColor: 'black',
-              textDayFontWeight: 'bold',
-              textMonthFontWeight: 'bold',
-              textDayHeaderFontWeight: 'bold',
-              
-            }}
-          />
-      
+                arrowColor: '#10B981',
+                textSectionTitleColor: 'black',
+                textDayFontWeight: 'bold',
+                textMonthFontWeight: 'bold',
+                textDayHeaderFontWeight: 'bold',
+                }}
+                />
           {selected && (
             <View
               style={{
@@ -250,7 +304,8 @@ export default function HomeScreen() {
                         }}
                       >
                         <Text style={{ fontWeight: 'bold', color: 'black' }}>
-                          {assignment.time}
+
+                            {assignment.time || '12:00'}
                         </Text>
                       </View>
                       <View
@@ -263,6 +318,7 @@ export default function HomeScreen() {
                           backgroundColor:
                             RadioColors[assignment.type as keyof typeof RadioColors] ||
                             '#CCCCCC',
+                        
                           marginLeft: 8,
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -296,7 +352,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <Modal visible={isModalVisible} transparent animationType="fade">
+        <Modal visible={isModalVisible} transparent animationType="fade" >
           <View
             style={{
               flex: 1,
@@ -307,69 +363,83 @@ export default function HomeScreen() {
           >
             <View
               style={{
-                backgroundColor: 'white',
-                padding: 24,
-                borderRadius: 16,
-                width: 320,
-                alignItems: 'center',
+          backgroundColor: 'white',
+          padding: 24,
+          borderRadius: 16,
+          width: 320,
+          alignItems: 'center',
               }}
             >
               <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>
-                New Assignment
+          New Assignment
               </Text>
-              <RadioButton data={RadioData} onSelect={setAssignmenTypeSelected} value={assignmentTypeSelected} />
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 }}>
+          {RadioData.map((item, index) => (
+            <View key={index} style={{ width: '22%', marginBottom: 8 }}>
+              <RadioButton
+                data={[item]}
+                onSelect={setAssignmenTypeSelected}
+                value={assignmentTypeSelected}
+              />
+            </View>
+          ))}
+              </View>
               <TextInput
-                placeholder="Title *"
-                value={newAssignment.title}
-                onChangeText={(text) =>
-                  setNewAssignment((prev) => ({ ...prev, title: text }))
-                }
-                style={{
-                  marginBottom: 16,
-                  padding: 8,
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'gray',
-                  minWidth: 160,
-                }}
+          placeholder="Title *"
+          value={newAssignment.title}
+          onChangeText={(text) =>
+            setNewAssignment((prev) => ({ ...prev, title: text }))
+          }
+          style={{
+            marginBottom: 16,
+            padding: 8,
+            borderBottomWidth: 1,
+            borderBottomColor: 'gray',
+            minWidth: 160,
+          }}
               />
               <TextInput
-                placeholder="Description"
-                value={newAssignment.description}
-                onChangeText={(text) =>
-                  setNewAssignment((prev) => ({ ...prev, description: text }))
-                }
-                style={{
-                  marginBottom: 24,
-                  padding: 8,
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'gray',
-                  minWidth: 160,
-                }}
-                multiline
+          placeholder="Description"
+          value={newAssignment.description}
+          onChangeText={(text) =>
+            setNewAssignment((prev) => ({ ...prev, description: text }))
+          }
+          style={{
+            marginBottom: 24,
+            padding: 8,
+            borderBottomWidth: 1,
+            borderBottomColor: 'gray',
+            minWidth: 160,
+          }}
+          multiline
               />
               <Pressable onPress={showTimePicker}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 16,
-                  }}
-                >
-                  <HourBox value={timeArray[0]} />
-                  <HourBox value={timeArray[1]} />
-                  <Text style={{ fontSize: 20, fontWeight: 'bold' }}>:</Text>
-                  <HourBox value={timeArray[2]} />
-                  <HourBox value={timeArray[3]} />
+              <View
+                style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16,
+                }}
+              >
+                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                <HourBox value={timeArray[0]} />
+                <HourBox value={timeArray[1]} />
                 </View>
+                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>:</Text>
+                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                <HourBox value={timeArray[2]} />
+                <HourBox value={timeArray[3]} />
+                </View>
+              </View>
               </Pressable>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', width: '100%' }}>
-                <Button variant="outline" onPress={() => setIsModalVisible(false)}>
-                  <ButtonText>Cancel</ButtonText>
-                </Button>
-                <Button onPress={handleAddAssignment}>
-                  <ButtonText>Save</ButtonText>
-                </Button>
+              <Button variant="outline" onPress={() => setIsModalVisible(false)}>
+                <ButtonText>Cancel</ButtonText>
+              </Button>
+              <Button onPress={handleAddAssignment}>
+                <ButtonText>Save</ButtonText>
+              </Button>
               </View>
             </View>
           </View>

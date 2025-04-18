@@ -1,46 +1,73 @@
 import React from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const icons = {
   Sport: {
-    selected: require('@/assets/icons/settings.png'),
-    unselected: require('@/assets/icons/calendar.png'),
+    iconSet: AntDesign,
+    name: 'dribbble',
+    color: 'red',
   },
   Work: {
-    selected: require('@/assets/icons/settings.png'),
-    unselected: require('@/assets/icons/calendar.png'),
+    iconSet: MaterialIcons,
+    name: 'work',
+    color: 'green',
   },
   Study: {
-    selected: require('@/assets/icons/settings.png'),
-    unselected: require('@/assets/icons/calendar.png'),
+    iconSet: FontAwesome,
+    name: 'book',
+    color: 'blue',
   },
   Family: {
-    selected: require('@/assets/icons/settings.png'),
-    unselected: require('@/assets/icons/calendar.png'),
+    iconSet: AntDesign,
+    name: 'home',
+    color: 'orange',
+  },
+  Travel: {
+    iconSet: MaterialIcons,
+    name: 'flight-takeoff',
+    color: 'purple',
+  },
+  Relax: {
+    iconSet: FontAwesome,
+    name: 'bed',
+    color: 'pink',
+  },
+  Social: {
+    iconSet: AntDesign,
+    name: 'team',
+    color: 'yellow',
+  },
+  Hobby: {
+    iconSet: MaterialIcons,
+    name: 'palette',
+    color: 'cyan',
   },
 };
 
 export default function RadioButton({ data, onSelect, value }) {
   return (
     <View>
-      <View className="flex-row gap-5">
+      <View className="flex-row gap-5 justify-center items-center">
         {data.map((item, index) => {
           const isSelected = item.value === value;
+          const Icon = icons[item.value].iconSet;
+          const iconName = icons[item.value].name;
+          const iconColor = isSelected ? icons[item.value].color : '#888';
+          const iconSize = isSelected ? 32 : 24;
+
           return (
-            <View key={index} className="items-center justify-center">
-              <Pressable onPress={() => onSelect(item.value)}>
-                <Image 
-                  source={isSelected ? icons[item.value].selected : icons[item.value].unselected} 
-                  className="w-10" 
-                  style={{ height: isSelected ? 30 : 20, width: isSelected ? 30 : 20 }}
-                />
-                <Text className="text-lg mt-2">{item.value}</Text>
-              </Pressable>
-            </View>
+            <Pressable key={index} onPress={() => onSelect(item.value)}>
+              <View className="items-center justify-center px-2">
+                <Icon name={iconName} size={iconSize} color={iconColor} />
+                <Text className="text-sm mt-1">{item.value}</Text>
+              </View>
+            </Pressable>
           );
         })}
       </View>
-      
     </View>
   );
 }
