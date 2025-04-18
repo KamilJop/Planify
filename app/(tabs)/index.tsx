@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   ScrollView,
   ViewStyle,
 } from 'react-native';
+
 import DateTimePicker, { useDefaultStyles, DateType } from 'react-native-ui-datepicker';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
 import { AddIcon, TrashIcon } from '@/components/ui/icon';
@@ -19,6 +20,7 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import HourBox from '@/components/hourbox';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import { DateData } from 'react-native-calendars';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 type Assignment = {
   title: string;
   description: string;
@@ -29,12 +31,11 @@ type Assignment = {
 
 const width = Dimensions.get('window').width;
 
-// Define colors for each assignment type
 const RadioColors = {
-  Sport: '#FF0000', // Red
-  Work: '#00FF00',  // Green
-  Study: '#0000FF', // Blue
-  Family: '#FFFF00', // Yellow
+  Sport: '#FF0000', 
+  Work: '#00FF00',  
+  Study: '#0000FF', 
+  Family: '#FFFF00', 
 };
 
 export default function HomeScreen() {
@@ -47,7 +48,22 @@ export default function HomeScreen() {
   const [time, setTime] = useState(new Date());
   const [timeArray, setTimeArray] = useState<string[]>(['1', '2', '0', '0']);
   const [displayTime, setDisplayTime] = useState('');
+  
+  useEffect(() => {
+    const loadAssignments = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('assignments');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setAssignments(parsed);
+        }
+      } catch (error) {
+        console.error('Failed to load assignments:', error);
+      }
+    };
 
+  loadAssignments();
+}, []);
   const showTimePicker = () => {
     DateTimePickerAndroid.open({
       value: time,
@@ -84,7 +100,7 @@ export default function HomeScreen() {
     return dayjs.isDayjs(date) ? date.toDate() : new Date(date);
   };
 
-  const handleAddAssignment = () => {
+  const handleAddAssignment = async (): Promise<void> => {
     if (!selected || !newAssignment.title.trim()) return;
     if (displayTime === '') {
       const currentTime = time;
@@ -107,21 +123,24 @@ export default function HomeScreen() {
       ],
     };
     setAssignments(updated);
+    await AsyncStorage.setItem('assignments', JSON.stringify(updated));
     setNewAssignment({ title: '', description: '' });
     setAssignmenTypeSelected('');
     setTime(new Date());
     setTimeArray(['1', '2', '0', '0']);
     setDisplayTime('');
     setIsModalVisible(false);
+
   };
 
-  const handleDeleteAssignment = (assignment: Assignment) => {
+  const handleDeleteAssignment = async (assignment: Assignment): Promise<void> => {
     const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
     const updated = {
       ...assignments,
       [dateKey]: (assignments[dateKey] || []).filter((a) => a !== assignment),
     };
     setAssignments(updated);
+    await AsyncStorage.setItem('assignments', JSON.stringify(updated));
   };
 
   const selectedDateKey = selected ? format(convertToDate(selected), 'yyyy-MM-dd') : '';
@@ -223,12 +242,14 @@ export default function HomeScreen() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           borderRadius: 8,
-                          backgroundColor: 'gray',
+                          borderWidth: 2,
+                          borderColor: 'gray',
+                          backgroundColor: 'lightgray',
                           width: 60,
-                          height: 60,
+                          height: 70,
                         }}
                       >
-                        <Text style={{ fontWeight: 'bold', color: 'white' }}>
+                        <Text style={{ fontWeight: 'bold', color: 'black' }}>
                           {assignment.time}
                         </Text>
                       </View>
@@ -237,15 +258,19 @@ export default function HomeScreen() {
                           flex: 1,
                           padding: 12,
                           borderRadius: 8,
+                          borderWidth: 2,
+                          borderColor: 'gray',
                           backgroundColor:
                             RadioColors[assignment.type as keyof typeof RadioColors] ||
                             '#CCCCCC',
                           marginLeft: 8,
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
                         <View style={{ flexDirection: 'row' }}>
-                          <View style={{ flex: 1 }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
+                          <View style={{ flex: 1, alignItems: 'flex-start', justifyContent: 'center' }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16 ,}}>
                               {assignment.title}
                             </Text>
                             <Text style={{ fontSize: 14, color: 'gray' }}>
