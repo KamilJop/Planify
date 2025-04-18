@@ -18,7 +18,7 @@ import RadioButton from '@/components/radiobutton';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import HourBox from '@/components/hourbox';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
-
+import { DateData } from 'react-native-calendars';
 type Assignment = {
   title: string;
   description: string;
@@ -145,57 +145,51 @@ export default function HomeScreen() {
         }}
       >
         <View style={{ width: width * 0.9 }}>
-          <DateTimePicker
-            mode="single"
-            date={selected}
-            onChange={({ date }) => setSelected(date)}
-            weekdaysHeight={50}
-            showOutsideDays={true}
-            firstDayOfWeek={1}
-            navigationPosition="right"
-            style={{ backgroundColor: '#D1FAE5', padding: 16, borderRadius: 24, marginTop: 32 }}
-            styles={{
-              ...defaultStyles,
-              month_selector_label: { fontSize: 24, fontWeight: 'bold', marginLeft: 8 },
-              year_selector_label: { fontSize: 24, fontWeight: 'bold', marginRight: 8 },
-              button_next: {
-                borderRadius: 8,
-                width: 32,
-                height: 32,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#D1FAE5',
+          <Calendar
+            style={{
+              borderWidth: 2,
+              borderColor: 'gray',
+              height: 350,
+              borderRadius: 30,
+            }}
+            onDayPress={(day: DateData) => {
+              setSelected(dayjs(day.dateString));
+            }}
+            markedDates={{
+              ...Object.keys(assignments).reduce((acc, date) => {
+                acc[date] = { marked: true };
+                return acc;
+              }, {} as Record<string, { marked: boolean }>),
+              [format(convertToDate(selected), 'yyyy-MM-dd')]: {
+                selected: true,
+                selectedColor: '#34D399',
+                marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
+                dotColor: 'black',
               },
-              button_prev: {
-                borderRadius: 8,
-                width: 32,
-                height: 32,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#D1FAE5',
-              },
-              weekdays: { borderBottomWidth: 2, borderBottomColor: '#000000' },
-              weekday_label: { fontWeight: 'bold' },
-              today: { borderColor: '#F59E0B', borderWidth: 1 },
-              selected: { borderColor: '#34D399', borderWidth: 4, borderRadius: 999 },
-              selected_label: { color: '#000000', fontWeight: 'bold' },
-              disabled: { opacity: 0.5 },
-              outside: { opacity: 0.5 },
+            }}
+            theme={{
+              selectedDayBackgroundColor: '#34D399',
+              selectedDayTextColor: '#ffffff',
+              todayTextColor: '#F59E0B',
+              dotColor: 'black',
+              arrowColor: '#10B981',
+              textSectionTitleColor: 'black',
+              textDayFontWeight: 'bold',
+              textMonthFontWeight: 'bold',
+              textDayHeaderFontWeight: 'bold',
+              
             }}
           />
-          <Calendar>
-            
-          </Calendar>
-
+      
           {selected && (
             <View
               style={{
                 marginTop: 32,
                 padding: 16,
-                borderWidth: 1,
-                borderStyle: 'dotted',
+                borderWidth: 2,
                 borderColor: 'gray',
-                borderRadius: 8,
+                borderRadius: 30,
+                backgroundColor: 'white',
               }}
             >
               <View
