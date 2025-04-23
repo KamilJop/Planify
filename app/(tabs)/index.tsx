@@ -241,8 +241,7 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    onRefresh(); 
-  }, []);
+  },  [assignments]);
   const showTimePicker = () => {
     DateTimePickerAndroid.open({
       value: time,
@@ -277,8 +276,6 @@ export default function HomeScreen() {
     { value: 'Social' },
     { value: 'Hobby' },
   ];
-
-  
 
   const convertToDate = (date: DateType | Dayjs): Date => {
     if (!date) throw new Error('Invalid date');
@@ -320,20 +317,20 @@ export default function HomeScreen() {
   };
 
   const handleDeleteAssignment = async (assignment: Assignment): Promise<void> => {
-    const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
-    const updatedAssignments = { ...assignments };
-    
-    // Filter out the deleted assignment
-    updatedAssignments[dateKey] = (updatedAssignments[dateKey] || []).filter((a) => a !== assignment);
-    
-    // Remove the date key if no assignments left
-    if (updatedAssignments[dateKey]?.length === 0) {
-      delete updatedAssignments[dateKey];
-    }
-    
-    setAssignments(updatedAssignments);
-    await AsyncStorage.setItem('assignments', JSON.stringify(updatedAssignments));
-  };
+  const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
+  const updatedAssignments = { ...assignments };
+  
+  // Filter out the deleted assignment
+  updatedAssignments[dateKey] = (updatedAssignments[dateKey] || []).filter((a) => a !== assignment);
+  
+  // Remove the date key if no assignments left
+  if (updatedAssignments[dateKey]?.length === 0) {
+    delete updatedAssignments[dateKey];
+  }
+  
+  setAssignments(updatedAssignments);
+  await AsyncStorage.setItem('assignments', JSON.stringify(updatedAssignments));
+};
 
   const selectedDateKey = selected ? format(convertToDate(selected), 'yyyy-MM-dd') : '';
   const selectedDateAssignments = assignments[selectedDateKey] || [];
@@ -358,44 +355,50 @@ export default function HomeScreen() {
     }
   >
       <View style={styles.calendarContainer}>
-        <Calendar
-          style={styles.calendar}
-          onDayPress={(day: DateData) => {
-            setSelected(dayjs(day.dateString));
-          }}
-          markedDates={{
-            ...Object.keys(assignments).reduce((acc, date) => {
-              acc[date] = { marked: true };
-              return acc;
-            }, {} as Record<string, { marked: boolean }>),
-            ...(selected && {
-              [format(convertToDate(selected), 'yyyy-MM-dd')]: {
-                selected: true,
-                selectedColor: Colors.primary,
-                marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
-                dotColor: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0
-                    ? RadioColors[assignments[format(convertToDate(selected), 'yyyy-MM-dd')][0].type as keyof typeof RadioColors]
-                    : 'black',
-                  },
-            }),
-          }}
-          theme={{
-            backgroundColor: Colors.surface,
-            calendarBackground: Colors.surface,
-            textSectionTitleColor: Colors.onSurface,
-            selectedDayBackgroundColor: Colors.primary,
-            selectedDayTextColor: Colors.onPrimary,
-            todayTextColor: Colors.secondary,
-            dayTextColor: Colors.onSurface,
-            textDisabledColor: Colors.onSurface + '55',
-            dotColor: Colors.primary,
-            arrowColor: Colors.primary,
-            monthTextColor: Colors.onSurface,
-            textDayFontWeight: 'bold',
-            textMonthFontWeight: 'bold',
-            textDayHeaderFontWeight: 'bold',
-          }}
-        />
+      <Calendar
+  style={styles.calendar}
+  onDayPress={(day: DateData) => {
+    setSelected(dayjs(day.dateString));
+  }}
+  markedDates={{
+    ...Object.keys(assignments).reduce((acc, date) => {
+      // Only mark dates that have at least one assignment
+      if (assignments[date]?.length > 0) {
+        acc[date] = { 
+          marked: true,
+          dotColor: RadioColors[assignments[date][0].type as keyof typeof RadioColors] || Colors.primary
+        };
+      }
+      return acc;
+    }, {} as Record<string, { marked: boolean; dotColor: string }>),
+    ...(selected && {
+      [format(convertToDate(selected), 'yyyy-MM-dd')]: {
+        selected: true,
+        selectedColor: Colors.primary,
+        marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
+        dotColor: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0
+          ? RadioColors[assignments[format(convertToDate(selected), 'yyyy-MM-dd')][0].type as keyof typeof RadioColors]
+          : Colors.primary,
+      },
+    }),
+  }}
+  theme={{
+    backgroundColor: Colors.surface,
+    calendarBackground: Colors.surface,
+    textSectionTitleColor: Colors.onSurface,
+    selectedDayBackgroundColor: Colors.primary,
+    selectedDayTextColor: Colors.onPrimary,
+    todayTextColor: Colors.secondary,
+    dayTextColor: Colors.onSurface,
+    textDisabledColor: Colors.onSurface + '55',
+    dotColor: Colors.primary,
+    arrowColor: Colors.primary,
+    monthTextColor: Colors.onSurface,
+    textDayFontWeight: 'bold',
+    textMonthFontWeight: 'bold',
+    textDayHeaderFontWeight: 'bold',
+  }}
+/>
 
         {selected && (
           <View style={styles.assignmentsContainer}>
