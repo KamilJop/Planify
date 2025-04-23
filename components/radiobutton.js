@@ -62,7 +62,7 @@ export default function RadioButton({ data, onSelect, value }) {
             <Pressable key={index} onPress={() => onSelect(item.value)}>
               <View className="items-center justify-center px-2">
                 <Icon name={iconName} size={iconSize} color={iconColor} />
-                <Text className="text-sm mt-1">{item.value}</Text>
+                <Text className="text-sm mt-1 text-white">{item.value}</Text>
               </View>
             </Pressable>
           );
