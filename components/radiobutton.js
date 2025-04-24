@@ -4,48 +4,18 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const icons = {
-  Sport: {
-    iconSet: AntDesign,
-    name: 'dribbble',
-    color: 'red',
-  },
-  Work: {
-    iconSet: MaterialIcons,
-    name: 'work',
-    color: 'green',
-  },
-  Study: {
-    iconSet: FontAwesome,
-    name: 'book',
-    color: 'blue',
-  },
-  Family: {
-    iconSet: AntDesign,
-    name: 'home',
-    color: 'orange',
-  },
-  Travel: {
-    iconSet: MaterialIcons,
-    name: 'flight-takeoff',
-    color: 'purple',
-  },
-  Relax: {
-    iconSet: FontAwesome,
-    name: 'bed',
-    color: 'pink',
-  },
-  Social: {
-    iconSet: AntDesign,
-    name: 'team',
-    color: 'yellow',
-  },
-  Hobby: {
-    iconSet: MaterialIcons,
-    name: 'palette',
-    color: 'cyan',
-  },
-};
+  
+
+  const icons = {
+    Sport: { iconSet: AntDesign, name: 'dribbble', color: '#FF5733' },
+    Work: { iconSet: MaterialIcons, name: 'work', color: '#33FF57' },
+    Study: { iconSet: FontAwesome, name: 'book', color: '#3357FF' },
+    Family: { iconSet: AntDesign, name: 'home', color: '#FF33A1' },
+    Travel: { iconSet: MaterialIcons, name: 'flight-takeoff', color: '#FF8C33' },
+    Relax: { iconSet: FontAwesome, name: 'bed', color: '#33FFF5' },
+    Social: { iconSet: AntDesign, name: 'team', color: '#F533FF' },
+    Hobby: { iconSet: MaterialIcons, name: 'palette', color: '#FFC733' },
+  }
 
 export default function RadioButton({ data, onSelect, value }) {
   return (

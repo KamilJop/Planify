@@ -244,14 +244,14 @@ export default function HomeScreen() {
   },  [assignments]);
   const showTimePicker = () => {
     DateTimePickerAndroid.open({
-      value: time,
+      value: time || new Date(0, 0, 0, 12, 0), // Default to 12:00 if no time is set
       mode: 'time',
       display: 'spinner',
       is24Hour: true,
       minuteInterval: 10,
       onChange: (event, selectedTime) => {
         if (event.type === 'set') {
-          const currentTime = selectedTime || time;
+          const currentTime = selectedTime || new Date(0, 0, 0, 12, 0); // Default to 12:00
           setTime(currentTime);
           const hours = currentTime.getHours();
           const minutes = currentTime.getMinutes();
@@ -265,7 +265,7 @@ export default function HomeScreen() {
       },
     });
   };
-
+  
   const RadioData = [
     { value: 'Sport' },
     { value: 'Work' },

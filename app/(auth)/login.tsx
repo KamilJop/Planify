@@ -13,7 +13,19 @@ import { Image } from '@/components/ui/image';
 const googleIcon = require('@/assets/images/google.svg');
 const githubIcon = require('@/assets/images/github.svg');
 
-
+const Colors = {
+  background: '#121212',
+  surface: '#1E1E1E',
+  primary: '#BB86FC',
+  primaryVariant: '#3700B3',
+  secondary: '#03DAC6',
+  error: '#CF6679',
+  onBackground: '#FFFFFF',
+  onSurface: '#FFFFFF',
+  onPrimary: '#000000',
+  onSecondary: '#000000',
+  onError: '#000000',
+};
 
 const LoginScreen = () => {
   const [username, setUsername] = React.useState('');
@@ -57,8 +69,8 @@ const LoginScreen = () => {
               <Text className='text-xl font-bold'>Are you sure?!</Text>
               <Text>By continuing as a guest, you will not be able to save your progress.</Text>
               <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 15}}>
-              <Pressable
-                className='bg-red-500 p-5 rounded-lg'
+              <Pressable style={{backgroundColor:Colors.primary}}
+                className=' p-5 rounded-lg'
                 onPress={() => setModalVisible(!modalVisible)}>
                 <Text style={styles.textStyle}>Take me back to login</Text>
               </Pressable>

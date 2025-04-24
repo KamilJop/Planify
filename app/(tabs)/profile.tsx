@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button, ButtonIcon } from '@/components/ui/button';
 import { TrashIcon } from '@/components/ui/icon';
 import dayjs from 'dayjs';
-
+import StatisticBar from '@/components/statisticbar.js'
 const Profile = () => {
   const Colors = {
     background: '#121212',
@@ -31,29 +31,73 @@ const Profile = () => {
     description?: string;
   }>>([]);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [statistics, setStatistics] = useState<{
+    currentMonth: Record<string, number>;
+    lastMonth: Record<string, number>;
+    currentYear: Record<string, number>;
+  }>({
+    currentMonth: {},
+    lastMonth: {},
+    currentYear: {}
+  });
+  
   const loadAssignments = async () => {
     setRefreshing(true);
     try {
       const stored = await AsyncStorage.getItem('assignments');
       if (stored) {
         const assignments = JSON.parse(stored);
-        const today = dayjs().format('YYYY-MM-DD');
-
+        const today = dayjs();
+        const currentMonth = today.month();
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const currentYear = today.year();
+  
+        const stats = {
+          currentMonth: {} as Record<string, number>,
+          lastMonth: {} as Record<string, number>,
+          currentYear: {} as Record<string, number>,
+        };
+  
         const upcoming = Object.entries(assignments)
-          .flatMap(([date, assignments]) => 
-            (assignments as any[]).map(a => ({ ...a, date }))
-          .filter(assignment => assignment.date >= today)
+          .flatMap(([date, dateAssignments]) => 
+            (dateAssignments as any[]).map(assignment => ({ ...assignment, date }))
+          )
+          .filter(assignment => {
+            const assignmentDate = dayjs(assignment.date);
+            const month = assignmentDate.month();
+            const year = assignmentDate.year();
+            const type = assignment.type;
+  
+            // Tally stats
+            if (year === currentYear) {
+              stats.currentYear[type] = (stats.currentYear[type] || 0) + 1;
+              if (month === currentMonth) {
+                stats.currentMonth[type] = (stats.currentMonth[type] || 0) + 1;
+              }
+              if (month === lastMonth && (currentMonth !== 0 || year === currentYear)) {
+                stats.lastMonth[type] = (stats.lastMonth[type] || 0) + 1;
+              }
+            }
+  
+            return assignment.date >= today.format('YYYY-MM-DD');
+          })
           .sort((a, b) => {
-            const dateCompare = a.date.localeCompare(b.date);
+            const dateCompare = dayjs(a.date).diff(dayjs(b.date));
             if (dateCompare !== 0) return dateCompare;
-            
-            const timeA = a.time.replace(':', '');
-            const timeB = b.time.replace(':', '');
+            const timeA = a.time?.replace(':', '') || '0000';
+            const timeB = b.time?.replace(':', '') || '0000';
             return timeA.localeCompare(timeB);
-          }));
-          
+          });
+  
         setUpcomingAssignments(upcoming);
+        setStatistics(stats);
+      } else {
+        setUpcomingAssignments([]);
+        setStatistics({
+          currentMonth: {},
+          lastMonth: {},
+          currentYear: {},
+        });
       }
     } catch (error) {
       console.error('Failed to load assignments:', error);
@@ -61,7 +105,9 @@ const Profile = () => {
       setRefreshing(false);
     }
   };
+  
 
+  // Load assignments on component mount and when refreshing
   useEffect(() => {
     loadAssignments();
   }, []);
@@ -74,19 +120,28 @@ const Profile = () => {
         const dateKey = assignmentToDelete.date;
         
         if (assignments[dateKey]) {
+          // Filter out the assignment to delete
+          const updatedAssignmentsForDate = assignments[dateKey].filter(
+            (a: any) => !(
+              a.title === assignmentToDelete.title && 
+              a.time === assignmentToDelete.time && 
+              a.type === assignmentToDelete.type
+            )
+          );
+          
+          // Create updated assignments object
           const updatedAssignments = {
             ...assignments,
-            [dateKey]: assignments[dateKey].filter(
-              (a: any) => !(
-                a.title === assignmentToDelete.title && 
-                a.time === assignmentToDelete.time && 
-                a.type === assignmentToDelete.type
-              )
-            )
+            [dateKey]: updatedAssignmentsForDate
           };
           
+          // Remove the date key if no assignments left
+          if (updatedAssignmentsForDate.length === 0) {
+            delete updatedAssignments[dateKey];
+          }
+          
           await AsyncStorage.setItem('assignments', JSON.stringify(updatedAssignments));
-          loadAssignments(); // Refresh the list after deletion
+          loadAssignments(); // Refresh the list
         }
       }
     } catch (error) {
@@ -133,10 +188,10 @@ const Profile = () => {
         />
         
         <View style={[styles.assignmentsHeader, { backgroundColor: Colors.surface }]}>
-          <Text style={styles.headerText}>Upcoming assignments</Text>
+          <Text style={[styles.headerText, { color: Colors.onSurface }]}>Upcoming assignments</Text>
           
           {upcomingAssignments.length === 0 ? (
-            <Text style={styles.emptyText}>No upcoming assignments</Text>
+            <Text style={[styles.emptyText, { color: Colors.onSurface }]}>No upcoming assignments</Text>
           ) : (
             <View style={styles.assignmentsContainer}>
               {upcomingAssignments.map((assignment, index) => (
@@ -171,7 +226,23 @@ const Profile = () => {
               ))}
             </View>
           )}
+          <StatisticBar 
+            statistics={statistics.currentMonth}
+            customStyles={{ marginBottom: 20 }}
+            ownText={"This Month's Assignments"} 
+          />
+          <StatisticBar 
+            statistics={statistics.lastMonth}
+            customStyles={{ marginBottom: 20 }}
+            ownText={"Last Month's Assignments"} 
+          />
+          <StatisticBar 
+            statistics={statistics.currentYear}
+            customStyles={{ marginBottom: 20 }}
+            ownText={"This Year's Assignments"} 
+          />
         </View>    
+        
       </View>
     </ScrollView>
   )
