@@ -93,6 +93,13 @@ const StatisticBar = ({ statistics, customStyles, ownText }) => {
       color: 'white',
       fontStyle: 'bold',
     },
+    noAssignmentsText: {
+      fontSize: 14,
+      fontStyle: 'italic',
+      color: 'gray',
+      textAlign: 'center',
+      marginTop: 20,
+    },
   })
 
   const lightenColor = (hex) => {
@@ -107,6 +114,15 @@ const StatisticBar = ({ statistics, customStyles, ownText }) => {
   }
 
   let runningLeft = 0
+
+  if (Object.keys(statistics).length === 0) {
+    return (
+      <View style={[styles.container, customStyles]}>
+        <Text style={styles.title}>{ownText}</Text>
+        <Text style={styles.noAssignmentsText}>You had no assignments</Text>
+      </View>
+    )
+  }
 
   return (
     <View style={[styles.container, customStyles]}>

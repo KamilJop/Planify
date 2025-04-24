@@ -68,7 +68,6 @@ const Profile = () => {
             const year = assignmentDate.year();
             const type = assignment.type;
   
-            // Tally stats
             if (year === currentYear) {
               stats.currentYear[type] = (stats.currentYear[type] || 0) + 1;
               if (month === currentMonth) {
