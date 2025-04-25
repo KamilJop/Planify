@@ -1,12 +1,12 @@
 import "@/global.css";
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { StatusBar } from "react-native";
+import { ThemeProvider } from '@/components/ThemeContext';
+import { Slot } from 'expo-router';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -25,15 +25,9 @@ export default function RootLayout() {
   }
 
   return (
-      <>
-        <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{headerShown:false}}/>
-          <Stack.Screen name="index" options={{headerShown:false}} />
-          <Stack.Screen name="onboardingScreen" options={{headerShown:false}} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </>
+    <ThemeProvider>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <Slot />
+    </ThemeProvider>
   );
 }
