@@ -24,18 +24,18 @@ const Settings = () => {
       {/* Theme and accent color */}
       <VStack style={{ width: width, height: 100, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}>
         <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
-          <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginHorizontal: 10, fontSize: 15 }}>
+          <Text style={{ color: colors.textColor, marginHorizontal: 10, fontSize: 15 }}>
             Theme
           </Text>
           <TouchableOpacity onPress={toggleTheme}>
-            <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginHorizontal: 10, fontSize: 15 }}>
+            <Text style={{ color: colors.textColor, marginHorizontal: 10, fontSize: 15 }}>
               {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
             </Text>
           </TouchableOpacity>
         </HStack>
         <Divider style={{ backgroundColor: 'gray', height: 1, width: '90%' }} />
         <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
-          <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginHorizontal: 10, fontSize: 15 }}>
+          <Text style={{ color: colors.textColor, marginHorizontal: 10, fontSize: 15 }}>
             Accent Color
           </Text>
           <HStack style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 10 }}>
@@ -57,34 +57,34 @@ const Settings = () => {
         </HStack>
       </VStack>
 
-      // Change username and profile picture
+      {/* Change username and profile picture */}
       <VStack style={{ width: width, height: 120, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, padding: 5, margin: 10 }}>
         <HStack style={{ width: width, alignItems: 'center', padding: 10 }}>
-          <View style={{ backgroundColor: 'gray', borderColor: 'gray', borderRadius: 100, borderWidth: 1, height: 50, width: 50, marginLeft: 5, marginTop: 5 }}> </View>
-          <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
+          <View style={{ backgroundColor: 'gray', borderColor: 'gray', borderRadius: 100, borderWidth: 1, height: 50, width: 50, marginLeft: 5, marginTop: 5 }} />
+          <Text style={{ color: colors.textColor, marginRight: 10, marginLeft: 10, fontSize: 15 }}>
         Change Username
           </Text>
         </HStack>
         <Divider style={{ backgroundColor: 'gray', height: 1, width: '90%' , marginBottom:10}} />
         <HStack style={{ width: width, alignItems: 'center', paddingLeft: 15 }}>
-          <Text style={{ color: theme === 'dark' ? 'white' : 'black', fontSize: 15, marginLeft: 5 }}>
+          <Text style={{ color: colors.textColor, fontSize: 15, marginLeft: 5 }}>
         Change Profile Picture
           </Text>
         </HStack>
       </VStack>
 
 
-      //Notifications
+      {/* Notifications */}
 
 
       <VStack style={{ width: width, height: 130, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}>
         <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
 
-      <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
+      <Text style={{ color: colors.textColor, marginRight: 10, marginLeft: 10, fontSize: 15 }}>
           Notifications
       </Text>
       <HStack style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-      <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
+      <Text style={{ color: colors.textColor, marginRight: 10, marginLeft: 10, fontSize: 15 }}>
           {notifications ? 'On' : 'Off'}
       </Text>
        <Switch
@@ -101,7 +101,7 @@ const Settings = () => {
       <Divider style={{ backgroundColor: 'gray', height: 1, width: '90%' }} />
 
       <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
-        <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
+        <Text style={{ color: colors.textColor, marginRight: 10, marginLeft: 10, fontSize: 15 }}>
           Reminder Time
         </Text>
         <HStack style={{ flexDirection: 'row', alignItems: 'center', gap : 10, marginRight: 10 }}>
@@ -120,7 +120,7 @@ const Settings = () => {
             style={{
               width: 140, 
               height: 60, 
-              color: theme === 'dark' ? 'white' : 'black'
+              color: colors.textColor
             }}
             dropdownIconColor={accent}
             mode="dropdown"
@@ -141,7 +141,7 @@ const Settings = () => {
 
       <TouchableOpacity style={{ width: width, height: 40,justifyContent : 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}
         onPress={() => console.log('Language Picker Pressed')}>
-        <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 20, fontSize: 15 }}>
+        <Text style={{ color: colors.textColor, marginRight: 10, marginLeft: 20, fontSize: 15 }}>
           Reset App to Default
         </Text>
       </TouchableOpacity>

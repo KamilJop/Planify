@@ -202,6 +202,12 @@ export default function HomeScreen() {
     fontStyle: 'italic',
   },
 });
+  const [calendarKey, setCalendarKey] = useState(0);
+
+  useEffect(() => {
+    setCalendarKey(prev => prev + 1);
+  }, [colors,accent]);
+
 
   useEffect(() => {
     const loadAssignments = async () => {
@@ -349,6 +355,7 @@ export default function HomeScreen() {
   >
       <View style={styles.calendarContainer}>
       <Calendar
+      key ={calendarKey}
   style={styles.calendar}
   onDayPress={(day: DateData) => {
     setSelected(dayjs(day.dateString));
@@ -367,11 +374,11 @@ export default function HomeScreen() {
     ...(selected && {
       [format(convertToDate(selected), 'yyyy-MM-dd')]: {
         selected: true,
-        selectedColor: colors.primary,
+        selectedColor: accent,
         marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
         dotColor: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0
           ? RadioColors[assignments[format(convertToDate(selected), 'yyyy-MM-dd')][0].type as keyof typeof RadioColors]
-          : colors.primary,
+          : accent,
       },
     }),
   }}
@@ -379,13 +386,13 @@ export default function HomeScreen() {
     backgroundColor: colors.surface,
     calendarBackground: colors.surface,
     textSectionTitleColor: colors.onSurface,
-    selectedDayBackgroundColor: colors.primary,
+    selectedDayBackgroundColor: accent,
     selectedDayTextColor: colors.onPrimary,
     todayTextColor: colors.secondary,
     dayTextColor: colors.onSurface,
     textDisabledColor: colors.onSurface + '55',
-    dotColor: colors.primary,
-    arrowColor: colors.primary,
+    dotColor: accent,
+    arrowColor: accent,
     monthTextColor: colors.onSurface,
     textDayFontWeight: 'bold',
     textMonthFontWeight: 'bold',
@@ -399,14 +406,11 @@ export default function HomeScreen() {
               <Text style={styles.assignmentsTitle}>
                 Assignments for {format(convertToDate(selected), 'MMM dd, yyyy')}
               </Text>
-              <Text style={{color:accent}}> 
-                TEST
-              </Text>
               <Button onPress={() => setIsModalVisible(true)}>
                 <ButtonIcon
                   as={AddIcon}
                   size="md"
-                  style={{ width: 24, height: 24, color: colors.primary }}
+                  style={{ width: 24, height: 24, color: accent }}
                 />
               </Button>
             </View>

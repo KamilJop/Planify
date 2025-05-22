@@ -168,10 +168,10 @@ const Profile = () => {
         />
         
         <View style={[styles.assignmentsHeader, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.headerText, { color: colors.onSurface }]}>Upcoming assignments</Text>
+          <Text style={[styles.headerText, { color: colors.textColor }]}>Upcoming assignments</Text>
           
           {upcomingAssignments.length === 0 ? (
-            <Text style={[styles.emptyText, { color: colors.onSurface }]}>No upcoming assignments</Text>
+            <Text style={[styles.emptyText, { color: colors.textColor }]}>No upcoming assignments</Text>
           ) : (
             <View style={styles.assignmentsContainer}>
               {upcomingAssignments.map((assignment, index) => (
@@ -212,7 +212,7 @@ const Profile = () => {
           )}
           <StatisticBar 
             statistics={statistics.currentMonth}
-            customStyles={{ marginBottom: 20 }}
+            customStyles={{ marginBottom: 20, }}
             ownText={"This Month's Assignments"} 
           />
           <StatisticBar 

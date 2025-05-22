@@ -23,6 +23,7 @@ interface ThemeContextType {
     onPrimary: string;
     onSecondary: string;
     onError: string;
+    textColor: string;
   };
 }
 
@@ -42,6 +43,7 @@ const colorSchemes = {
     onPrimary: '#000000',
     onSecondary: '#000000',
     onError: '#000000',
+    textColor: '#FFFFFF',
   },
   light: {
     background: '#FFFFFF',
@@ -56,6 +58,7 @@ const colorSchemes = {
     onPrimary: '#FFFFFF',
     onSecondary: '#000000',
     onError: '#FFFFFF',
+    textColor: '#000000',
   },
 };
 
