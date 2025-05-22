@@ -1,5 +1,5 @@
 // app/(tabs)/settings.tsx
-import { View, Text, Dimensions } from 'react-native'
+import { View, Text, Dimensions, Touchable, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Switch } from '@/components/ui/switch'
 import { BellIcon, CloseCircleIcon, Icon } from '@/components/ui/icon'
@@ -12,7 +12,7 @@ import { HStack } from '@/components/ui/hstack'
 const Settings = () => {
   const { theme, toggleTheme, colors } = useTheme()
   const [notifications, setNotifications] = React.useState(true)
-  const [selectedLanguage, setSelectedLanguage] = React.useState('en')
+  const [notificationTime, setNotificationTime] = React.useState(15)
   const width = Dimensions.get('window').width * 0.9
 
   return (
@@ -23,15 +23,19 @@ const Settings = () => {
       alignItems: 'center'
     }}>
 
+
+      // Theme i accent color
       <VStack style={{ width: width, height: 80, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}>
         <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
 
       <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
           Theme
       </Text>
+      <TouchableOpacity onPress={ () => toggleTheme()}>
       <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
           {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
       </Text>
+      </TouchableOpacity>
          </HStack>
       <Divider style={{ backgroundColor: 'gray', height: 1, width: '90%' }} />
 
@@ -49,6 +53,9 @@ const Settings = () => {
         
       </HStack>
       </VStack>
+
+
+      // Change username and profile picture
       <VStack style={{ width: width, height: 120, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, padding: 5, margin: 10 }}>
         <HStack style={{ width: width, alignItems: 'center', padding: 10 }}>
           <View style={{ backgroundColor: 'gray', borderColor: 'gray', borderRadius: 100, borderWidth: 1, height: 50, width: 50, marginLeft: 5, marginTop: 5 }}> </View>
@@ -64,115 +71,45 @@ const Settings = () => {
         </HStack>
       </VStack>
 
-  
 
-      <View style={{
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        width: width, 
-        justifyContent: 'space-between', 
-        borderColor: colors.primary, 
-        borderWidth: 1, 
-        borderRadius: 10, 
-        padding: 5, 
-        margin: 10, 
-        height: 50
-      }}>
-        <Text style={{
-          color: theme === 'dark' ? colors.primary : colors.onBackground, 
-          marginRight: 10, 
-          marginLeft: 10
-        }}>
-          Light Mode
-        </Text>
-        <Switch
-          size='lg'
-          value={theme === 'dark'}
-          onValueChange={toggleTheme}
-          trackColor={{ false: colors.onSurface, true: colors.primary }}
-          thumbColor={colors.onBackground}
-          ios_backgroundColor={colors.onSurface}
-        />
-        <Text style={{
-          color: theme === 'dark' ? colors.primary : colors.onBackground, 
-          marginLeft: 10, 
-          marginRight: 10
-        }}>
-          Dark Mode
-        </Text>
-      </View>
+      //Notifications
 
 
-      <View style={{
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        width: width, 
-        justifyContent: 'space-between', 
-        borderColor: colors.primary, 
-        borderWidth: 1, 
-        borderRadius: 10, 
-        padding: 5, 
-        margin: 10, 
-        height: 50
-      }}>
-        <Text style={{
-          color: theme === 'dark' ? colors.primary : colors.onBackground, 
-          marginRight: 10, 
-          marginLeft: 10
-        }}>
+      <VStack style={{ width: width, height: 130, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}>
+        <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
+
+      <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
           Notifications
-        </Text>
-        <Switch
-          style={{ marginRight: 50 }}
-          size='lg'
+      </Text>
+      <HStack style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
+      <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
+          {notifications ? 'On' : 'Off'}
+      </Text>
+       <Switch
+          style={{ }}
+          size='sm'
           value={notifications}
           onValueChange={() => setNotifications(!notifications)}
           trackColor={{ false: colors.onSurface, true: colors.primary }}
           thumbColor={colors.onBackground}
           ios_backgroundColor={colors.onSurface}
         />  
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>  
-          <Text style={{
-            color: theme === 'dark' ? colors.primary : colors.onBackground, 
-            marginRight: 10
-          }}>
-            {notifications ? 'On' : 'Off'}
-          </Text>
-          <Icon 
-            as={notifications ? BellIcon : CloseCircleIcon} 
-            size='lg' 
-            color={theme === 'dark' ? colors.primary : colors.onBackground} 
-          />
-        </View>
-      </View>
+        </HStack>
+         </HStack>
+      <Divider style={{ backgroundColor: 'gray', height: 1, width: '90%' }} />
 
-      {/* Language Selector - Preserving your original style */}
-      <View style={{
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        width: width, 
-        justifyContent: 'space-between', 
-        borderColor: colors.primary, 
-        borderWidth: 1, 
-        borderRadius: 10, 
-        padding: 5, 
-        margin: 10, 
-        height: 50
-      }}>
-        <Text style={{
-          color: theme === 'dark' ? colors.primary : colors.onBackground, 
-          marginRight: 10, 
-          marginLeft: 10
-        }}>
-          Language
+      <HStack style={{ width: width, justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
+        <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 10, fontSize: 15 }}>
+          Reminder Time
         </Text>
-        <View style={{
+        <HStack style={{ flexDirection: 'row', alignItems: 'center', gap : 10, marginRight: 10 }}>
+          <View style={{
           flexDirection: 'row', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
           width: 140, 
           height: 30, 
-          borderColor: colors.primary, 
+          borderColor: colors.onSurface, 
           borderWidth: 1, 
           borderRadius: 10, 
           padding: 5
@@ -181,19 +118,32 @@ const Settings = () => {
             style={{
               width: 140, 
               height: 60, 
-              color: theme === 'dark' ? colors.primary : colors.onBackground
+              color: theme === 'dark' ? 'white' : 'black'
             }}
             dropdownIconColor={theme === 'dark' ? colors.primary : colors.onBackground}
             mode="dropdown"
-            selectedValue={selectedLanguage}
-            onValueChange={(itemValue) => setSelectedLanguage(itemValue)}
+            selectedValue={notificationTime}
+            onValueChange={(itemValue) => setNotificationTime(Number(itemValue))}
           >
-            <Picker.Item label="English" value="en" />
-            <Picker.Item label="Polski" value="pl" />
-            <Picker.Item label="Deutsch" value="de" />
+            <Picker.Item label="15 min" value="15" />
+            <Picker.Item label="30 min" value="30" />
+            <Picker.Item label="1 hour" value="60" />
+            <Picker.Item label="2 hours" value="120" />
+            <Picker.Item label="6 hours" value="360" />
           </Picker>
-        </View>
-      </View>
+          </View>
+        </HStack>
+        
+      </HStack>
+      </VStack>
+
+      <TouchableOpacity style={{ width: width, height: 40,justifyContent : 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}
+        onPress={() => console.log('Language Picker Pressed')}>
+        <Text style={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 10, marginLeft: 20, fontSize: 15 }}>
+          Reset App to Default
+        </Text>
+      </TouchableOpacity>
+  
     </View>
   )
 }
