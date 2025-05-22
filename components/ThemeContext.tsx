@@ -8,9 +8,12 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
+  accent: string;
+  setAccent: (color: string) => void;
   colors: {
     background: string;
     surface: string;
+    lighterSurface: string;
     primary: string;
     primaryVariant: string;
     secondary: string;
@@ -29,6 +32,7 @@ const colorSchemes = {
   dark: {
     background: '#121212',
     surface: '#1E1E1E',
+    lighterSurface: '#2A2A2A',
     primary: '#BB86FC',
     primaryVariant: '#3700B3',
     secondary: '#03DAC6',
@@ -42,6 +46,7 @@ const colorSchemes = {
   light: {
     background: '#FFFFFF',
     surface: '#F5F5F5',
+    lighterSurface: '#FAFAFA',
     primary: '#6200EE',
     primaryVariant: '#3700B3',
     secondary: '#03DAC6',
@@ -51,24 +56,29 @@ const colorSchemes = {
     onPrimary: '#FFFFFF',
     onSecondary: '#000000',
     onError: '#FFFFFF',
-  }
+  },
 };
 
-export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>('dark');
+  const [accent, setAccent] = useState<string>('#a258d6');
 
   useEffect(() => {
-    const loadTheme = async () => {
+    const loadSettings = async () => {
       try {
         const savedTheme = await SecureStore.getItemAsync('theme');
+        const savedAccent = await SecureStore.getItemAsync('accent');
         if (savedTheme === 'light' || savedTheme === 'dark') {
           setTheme(savedTheme);
         }
+        if (savedAccent) {
+          setAccent(savedAccent);
+        }
       } catch (e) {
-        console.error('Failed to load theme', e);
+        console.error('Failed to load settings', e);
       }
     };
-    loadTheme();
+    loadSettings();
   }, []);
 
   const toggleTheme = async () => {
@@ -81,8 +91,25 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children 
     }
   };
 
+  const handleSetAccent = async (color: string) => {
+    setAccent(color);
+    try {
+      await SecureStore.setItemAsync('accent', color);
+    } catch (e) {
+      console.error('Failed to save accent color', e);
+    }
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, colors: colorSchemes[theme] }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        accent,
+        setAccent: handleSetAccent,
+        colors: colorSchemes[theme],
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

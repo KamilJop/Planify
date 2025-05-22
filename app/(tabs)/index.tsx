@@ -21,23 +21,13 @@ import HourBox from '@/components/hourbox';
 import { Calendar } from 'react-native-calendars';
 import { DateData } from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useColorScheme } from 'react-native';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { useTheme } from '@/components/ThemeContext';
 
 
 
-const Colors = {
-  background: '#121212',
-  surface: '#1E1E1E',
-  primary: '#BB86FC',
-  primaryVariant: '#3700B3',
-  secondary: '#03DAC6',
-  error: '#CF6679',
-  onBackground: '#FFFFFF',
-  onSurface: '#FFFFFF',
-  onPrimary: '#000000',
-  onSecondary: '#000000',
-  onError: '#000000',
-};
+
 
 type Assignment = {
   title: string;
@@ -60,10 +50,24 @@ const RadioColors = {
   Hobby: '#26C6DA',
 };
 
-const styles = StyleSheet.create({
+
+
+export default function HomeScreen() {
+  const [selected, setSelected] = useState<DateType | Dayjs>(dayjs());
+  const [assignments, setAssignments] = useState<Record<string, Assignment[]>>({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newAssignment, setNewAssignment] = useState({ title: '', description: '' });
+  const [assignmentTypeSelected, setAssignmenTypeSelected] = useState('');
+  const [time, setTime] = useState(new Date());
+  const [timeArray, setTimeArray] = useState<string[]>(['1', '2', '0', '0']);
+  const [displayTime, setDisplayTime] = useState('');
+  const [refreshing, setRefreshing] = useState(false); 
+  const { colors } = useTheme();
+  const { accent } = useTheme()
+  const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     minHeight: Dimensions.get('window').height,
   },
   calendarContainer: {
@@ -72,8 +76,8 @@ const styles = StyleSheet.create({
   },
   calendar: {
     borderWidth: 1,
-    borderColor: Colors.surface,
-    backgroundColor: Colors.surface,
+    borderColor: colors.surface,
+    backgroundColor: colors.surface,
     height: 365,
     borderRadius: 16,
     overflow: 'hidden',
@@ -82,9 +86,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.surface,
+    borderColor: colors.surface,
     borderRadius: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
   assignmentsHeader: {
     flexDirection: 'row',
@@ -95,7 +99,7 @@ const styles = StyleSheet.create({
   assignmentsTitle: {
     fontWeight: 'bold',
     fontSize: 18,
-    color: Colors.onSurface,
+    color: colors.onSurface,
   },
   assignmentItem: {
     flexDirection: 'row',
@@ -106,14 +110,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.primary,
-    backgroundColor: Colors.background,
+    borderColor: colors.primary,
+    backgroundColor: colors.background,
     width: 60,
     height: 70,
   },
   timeText: {
     fontWeight: 'bold',
-    color: Colors.onBackground,
+    color: colors.onBackground,
   },
   assignmentContent: {
     flex: 1,
@@ -130,11 +134,11 @@ const styles = StyleSheet.create({
   assignmentTitle: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: Colors.onSurface,
+    color: colors.onSurface,
   },
   assignmentDescription: {
     fontSize: 14,
-    color: Colors.onSurface + 'AA',
+    color: colors.onSurface + 'AA',
   },
   modalOverlay: {
     flex: 1,
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 24,
     borderRadius: 16,
     width: 320,
@@ -155,7 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    color: Colors.onSurface,
+    color: colors.onSurface,
   },
   radioButtonContainer: {
     flexDirection: 'row',
@@ -171,8 +175,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.primary,
-    color: Colors.onSurface,
+    borderBottomColor: colors.primary,
+    color: colors.onSurface,
     minWidth: 160,
   },
   timePickerContainer: {
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
   timeSeparator: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.onSurface,
+    color: colors.onSurface,
     marginHorizontal: 8,
   },
   modalButtons: {
@@ -194,21 +198,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   emptyStateText: {
-    color: Colors.onSurface + 'AA',
+    color: colors.onSurface + 'AA',
     fontStyle: 'italic',
   },
 });
-
-export default function HomeScreen() {
-  const [selected, setSelected] = useState<DateType | Dayjs>(dayjs());
-  const [assignments, setAssignments] = useState<Record<string, Assignment[]>>({});
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [newAssignment, setNewAssignment] = useState({ title: '', description: '' });
-  const [assignmentTypeSelected, setAssignmenTypeSelected] = useState('');
-  const [time, setTime] = useState(new Date());
-  const [timeArray, setTimeArray] = useState<string[]>(['1', '2', '0', '0']);
-  const [displayTime, setDisplayTime] = useState('');
-  const [refreshing, setRefreshing] = useState(false); 
 
   useEffect(() => {
     const loadAssignments = async () => {
@@ -320,10 +313,10 @@ export default function HomeScreen() {
   const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
   const updatedAssignments = { ...assignments };
   
-  // Filter out the deleted assignment
+
   updatedAssignments[dateKey] = (updatedAssignments[dateKey] || []).filter((a) => a !== assignment);
   
-  // Remove the date key if no assignments left
+
   if (updatedAssignments[dateKey]?.length === 0) {
     delete updatedAssignments[dateKey];
   }
@@ -350,7 +343,7 @@ export default function HomeScreen() {
       <RefreshControl
         refreshing={refreshing}
         onRefresh={onRefresh}
-        tintColor={Colors.primary}
+        tintColor={colors.primary}
       />
     }
   >
@@ -366,7 +359,7 @@ export default function HomeScreen() {
       if (assignments[date]?.length > 0) {
         acc[date] = { 
           marked: true,
-          dotColor: RadioColors[assignments[date][0].type as keyof typeof RadioColors] || Colors.primary
+          dotColor: RadioColors[assignments[date][0].type as keyof typeof RadioColors] || colors.primary
         };
       }
       return acc;
@@ -374,26 +367,26 @@ export default function HomeScreen() {
     ...(selected && {
       [format(convertToDate(selected), 'yyyy-MM-dd')]: {
         selected: true,
-        selectedColor: Colors.primary,
+        selectedColor: colors.primary,
         marked: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0,
         dotColor: assignments[format(convertToDate(selected), 'yyyy-MM-dd')]?.length > 0
           ? RadioColors[assignments[format(convertToDate(selected), 'yyyy-MM-dd')][0].type as keyof typeof RadioColors]
-          : Colors.primary,
+          : colors.primary,
       },
     }),
   }}
   theme={{
-    backgroundColor: Colors.surface,
-    calendarBackground: Colors.surface,
-    textSectionTitleColor: Colors.onSurface,
-    selectedDayBackgroundColor: Colors.primary,
-    selectedDayTextColor: Colors.onPrimary,
-    todayTextColor: Colors.secondary,
-    dayTextColor: Colors.onSurface,
-    textDisabledColor: Colors.onSurface + '55',
-    dotColor: Colors.primary,
-    arrowColor: Colors.primary,
-    monthTextColor: Colors.onSurface,
+    backgroundColor: colors.surface,
+    calendarBackground: colors.surface,
+    textSectionTitleColor: colors.onSurface,
+    selectedDayBackgroundColor: colors.primary,
+    selectedDayTextColor: colors.onPrimary,
+    todayTextColor: colors.secondary,
+    dayTextColor: colors.onSurface,
+    textDisabledColor: colors.onSurface + '55',
+    dotColor: colors.primary,
+    arrowColor: colors.primary,
+    monthTextColor: colors.onSurface,
     textDayFontWeight: 'bold',
     textMonthFontWeight: 'bold',
     textDayHeaderFontWeight: 'bold',
@@ -406,11 +399,14 @@ export default function HomeScreen() {
               <Text style={styles.assignmentsTitle}>
                 Assignments for {format(convertToDate(selected), 'MMM dd, yyyy')}
               </Text>
+              <Text style={{color:accent}}> 
+                TEST
+              </Text>
               <Button onPress={() => setIsModalVisible(true)}>
                 <ButtonIcon
                   as={AddIcon}
                   size="md"
-                  style={{ width: 24, height: 24, color: Colors.primary }}
+                  style={{ width: 24, height: 24, color: colors.primary }}
                 />
               </Button>
             </View>
@@ -430,8 +426,8 @@ export default function HomeScreen() {
                       style={[
                         styles.assignmentContent,
                         {
-                          backgroundColor: RadioColors[assignment.type as keyof typeof RadioColors] || Colors.background,
-                          borderColor: RadioColors[assignment.type as keyof typeof RadioColors] || Colors.background,
+                          backgroundColor: RadioColors[assignment.type as keyof typeof RadioColors] || colors.background,
+                          borderColor: RadioColors[assignment.type as keyof typeof RadioColors] || colors.background,
                         },
                       ]}
                     >
@@ -451,7 +447,7 @@ export default function HomeScreen() {
                             <ButtonIcon
                               as={TrashIcon}
                               size="md"
-                              style={{ width: 24, height: 24, color: Colors.onSurface }}
+                              style={{ width: 24, height: 24, color: colors.onSurface }}
                             />
                           </Button>
                         </View>
@@ -482,7 +478,7 @@ export default function HomeScreen() {
             </View>
             <TextInput
               placeholder="Title *"
-              placeholderTextColor={Colors.onSurface + '77'}
+              placeholderTextColor={colors.onSurface + '77'}
               value={newAssignment.title}
               onChangeText={(text) =>
                 setNewAssignment((prev) => ({ ...prev, title: text }))
@@ -491,7 +487,7 @@ export default function HomeScreen() {
             />
             <TextInput
               placeholder="Description"
-              placeholderTextColor={Colors.onSurface + '77'}
+              placeholderTextColor={colors.onSurface + '77'}
               value={newAssignment.description}
               onChangeText={(text) =>
                 setNewAssignment((prev) => ({ ...prev, description: text }))

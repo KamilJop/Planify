@@ -5,6 +5,7 @@ import { Image } from 'react-native';
 import { useTheme } from '@/components/ThemeContext';
 
 const TabLayoutWrapper = () => {
+
   const { colors } = useTheme();
 
   const homeIcon = require('@/assets/icons/calendar.png');
