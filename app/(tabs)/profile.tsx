@@ -8,6 +8,7 @@ import { TrashIcon } from '@/components/ui/icon';
 import dayjs from 'dayjs';
 import StatisticBar from '@/components/statisticbar.js';
 import { useTheme } from '@/components/ThemeContext';
+import { Pressable } from 'react-native';
 
 const Profile = () => {
   const { colors } = useTheme();
@@ -29,70 +30,71 @@ const Profile = () => {
     currentYear: {}
   });
   
-  const loadAssignments = async () => {
-    setRefreshing(true);
-    try {
-      const stored = await AsyncStorage.getItem('assignments');
-      if (stored) {
-        const assignments = JSON.parse(stored);
-        const today = dayjs();
-        const currentMonth = today.month();
-        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-        const currentYear = today.year();
-  
-        const stats = {
-          currentMonth: {} as Record<string, number>,
-          lastMonth: {} as Record<string, number>,
-          currentYear: {} as Record<string, number>,
-        };
-  
-        const upcoming = Object.entries(assignments)
-          .flatMap(([date, dateAssignments]) => 
-            (dateAssignments as any[]).map(assignment => ({ ...assignment, date }))
-          )
-          .filter(assignment => {
-            const assignmentDate = dayjs(assignment.date);
-            const month = assignmentDate.month();
-            const year = assignmentDate.year();
-            const type = assignment.type;
-  
-            if (year === currentYear) {
-              stats.currentYear[type] = (stats.currentYear[type] || 0) + 1;
-              if (month === currentMonth) {
-                stats.currentMonth[type] = (stats.currentMonth[type] || 0) + 1;
-              }
-              if (month === lastMonth && (currentMonth !== 0 || year === currentYear)) {
-                stats.lastMonth[type] = (stats.lastMonth[type] || 0) + 1;
-              }
-            }
-  
-            return assignment.date >= today.format('YYYY-MM-DD');
-          })
-          .sort((a, b) => {
-            const dateCompare = dayjs(a.date).diff(dayjs(b.date));
-            if (dateCompare !== 0) return dateCompare;
-            const timeA = a.time?.replace(':', '') || '0000';
-            const timeB = b.time?.replace(':', '') || '0000';
-            return timeA.localeCompare(timeB);
-          });
-  
-        setUpcomingAssignments(upcoming);
-        setStatistics(stats);
-      } else {
-        setUpcomingAssignments([]);
-        setStatistics({
-          currentMonth: {},
-          lastMonth: {},
-          currentYear: {},
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load assignments:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
+ const loadAssignments = async () => {
+  setRefreshing(true);
+  try {
+    const stored = await AsyncStorage.getItem('assignments');
+    if (stored) {
+      const assignments = JSON.parse(stored);
+      const today = dayjs();
+      const currentMonth = today.month();
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const currentYear = today.year();
 
+      const stats = {
+        currentMonth: {} as Record<string, number>,
+        lastMonth: {} as Record<string, number>,
+        currentYear: {} as Record<string, number>,
+      };
+
+      const upcoming = Object.entries(assignments)
+        .flatMap(([date, dateAssignments]) => 
+          (dateAssignments as any[]).map(assignment => ({ ...assignment, date }))
+        )
+        .filter(assignment => {
+          const assignmentDate = dayjs(assignment.date);
+          const month = assignmentDate.month();
+          const year = assignmentDate.year();
+          const type = assignment.type;
+
+          if (year === currentYear) {
+            stats.currentYear[type] = (stats.currentYear[type] || 0) + 1;
+            if (month === currentMonth) {
+              stats.currentMonth[type] = (stats.currentMonth[type] || 0) + 1;
+            }
+            if (month === lastMonth && (currentMonth !== 0 || year === currentYear)) {
+              stats.lastMonth[type] = (stats.lastMonth[type] || 0) + 1;
+            }
+          }
+
+          return assignment.date >= today.format('YYYY-MM-DD');
+        })
+        .sort((a, b) => {
+          const dateCompare = dayjs(a.date).diff(dayjs(b.date));
+          if (dateCompare !== 0) return dateCompare;
+          const timeA = a.time?.replace(':', '') || '0000';
+          const timeB = b.time?.replace(':', '') || '0000';
+          return timeA.localeCompare(timeB);
+        });
+
+      setUpcomingAssignments(upcoming);
+      setStatistics(stats);
+    } else {
+      setUpcomingAssignments([]);
+      setStatistics({
+        currentMonth: {},
+        lastMonth: {},
+        currentYear: {},
+      });
+    }
+    await loadProfileImage(); // <-- Add this line
+  } catch (error) {
+    console.error('Failed to load assignments:', error);
+  } finally {
+    setRefreshing(false);
+  }
+};
+  const [profileImageIdx, setProfileImageIdx] = useState<number | null>(null);
   useEffect(() => {
     loadAssignments();
   }, []);
@@ -146,7 +148,51 @@ const Profile = () => {
     }
   };
 
-  const profileImage = require('@/assets/images/profile-image.jpg');
+  const [selectedImage, setSelectedImage] = useState<any>(null);
+
+  // Array of local images
+  const images = [
+    require('@/assets/faces/uifaces-popular-image1.jpg'),
+    require('@/assets/faces/uifaces-popular-image2.jpg'),
+    require('@/assets/faces/uifaces-popular-image3.jpg'),
+    require('@/assets/faces/uifaces-popular-image4.jpg'),
+    require('@/assets/faces/uifaces-popular-image5.jpg'),
+    require('@/assets/faces/uifaces-popular-image6.jpg'),
+    require('@/assets/faces/uifaces-popular-image7.jpg'),
+    require('@/assets/faces/uifaces-popular-image8.jpg'),
+
+  ];
+
+
+  // Load selected profile image index from AsyncStorage
+  const loadProfileImage = async () => {
+    try {
+      const idxStr = await AsyncStorage.getItem('profileImage');
+      if (idxStr !== null) {
+        const idx = parseInt(idxStr, 10);
+        setProfileImageIdx(idx);
+        setSelectedImage(images[idx]);
+      } else {
+        setProfileImageIdx(null);
+        setSelectedImage(null);
+      }
+    } catch (error) {
+      console.error('Failed to load profile image:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadAssignments();
+    loadProfileImage();
+  }, []);
+
+  // The image to display as profile
+  const profileImage =
+    selectedImage ||
+    require('@/assets/images/profile-image.jpg');
+
+
+
 
   return (
     <ScrollView 

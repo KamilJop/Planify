@@ -60,8 +60,9 @@ export default function HomeScreen() {
   const [assignmentTypeSelected, setAssignmenTypeSelected] = useState('');
   const [time, setTime] = useState(new Date());
   const [timeArray, setTimeArray] = useState<string[]>(['1', '2', '0', '0']);
-  const [displayTime, setDisplayTime] = useState('');
+  const [displayTime, setDisplayTime] = useState('12:00');
   const [refreshing, setRefreshing] = useState(false); 
+  const [isTimePicked, setIsTimePicked] = useState(false);
   const { colors } = useTheme();
   const { accent } = useTheme()
   const styles = StyleSheet.create({
@@ -243,25 +244,23 @@ export default function HomeScreen() {
   },  [assignments]);
   const showTimePicker = () => {
     DateTimePickerAndroid.open({
-      value: time || new Date(0, 0, 0, 12, 0), // Default to 12:00 if no time is set
+      value: time || new Date(0, 0, 0, 12, 0),
       mode: 'time',
       display: 'spinner',
       is24Hour: true,
       minuteInterval: 10,
       onChange: (event, selectedTime) => {
-        if (event.type === 'set') {
-          const currentTime = selectedTime || new Date(0, 0, 0, 12, 0); // Default to 12:00
-          setTime(currentTime);
-          const hours = currentTime.getHours();
-          const minutes = currentTime.getMinutes();
-          const timeDigits = [
-            ...hours.toString().split(''),
-            ...minutes.toString().split(''),
-          ];
-          setTimeArray(timeDigits);
-          setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
-        }
-      },
+  if (event.type === 'set') {
+    const currentTime = selectedTime || new Date(0, 0, 0, 12, 0);
+    setIsTimePicked(true); // <- Track user interaction
+    setTime(currentTime);
+    const hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
+    const timeDigits = [...hours.toString().split(''), ...minutes.toString().split('')];
+    setTimeArray(timeDigits);
+    setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
+  }
+},
     });
   };
   
@@ -281,40 +280,45 @@ export default function HomeScreen() {
     return dayjs.isDayjs(date) ? date.toDate() : new Date(date);
   };
 
-  const handleAddAssignment = async (): Promise<void> => {
-    if (!selected || !newAssignment.title.trim()) return;
-    
-    // Get time - default to 12:00 if not set
-    let formattedTime = "12:00";
-    if (time) {
-      const hours = time.getHours().toString().padStart(2, '0');
-      const minutes = time.getMinutes().toString().padStart(2, '0');
-      formattedTime = `${hours}:${minutes}`;
-    }
-  
-    const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
-    const updated = {
-      ...assignments,
-      [dateKey]: [
-        ...(assignments[dateKey] || []),
-        {
-          ...newAssignment,
-          date: dateKey,
-          time: formattedTime, // Will be either the selected time or "12:00"
-          type: assignmentTypeSelected,
-        },
-      ],
-    };
-    
-    setAssignments(updated);
-    await AsyncStorage.setItem('assignments', JSON.stringify(updated));
-    setNewAssignment({ title: '', description: '' });
-    setAssignmenTypeSelected('');
-    setTime(new Date());
-    setTimeArray(['1', '2', '0', '0']);
-    setIsModalVisible(false);
+ const handleAddAssignment = async (): Promise<void> => {
+  if (!selected || !newAssignment.title.trim()) return;
+
+  let assignmentTime: Date;
+  if (isTimePicked) {
+    assignmentTime = time;
+  } else {
+    assignmentTime = new Date();
+    assignmentTime.setHours(12, 0, 0, 0); // Set to 12:00
+  }
+
+  const hours = assignmentTime.getHours().toString().padStart(2, '0');
+  const minutes = assignmentTime.getMinutes().toString().padStart(2, '0');
+  const formattedTime = `${hours}:${minutes}`;
+
+  const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
+  const updated = {
+    ...assignments,
+    [dateKey]: [
+      ...(assignments[dateKey] || []),
+      {
+        ...newAssignment,
+        date: dateKey,
+        time: formattedTime,
+        type: assignmentTypeSelected,
+      },
+    ],
   };
 
+  setAssignments(updated);
+  await AsyncStorage.setItem('assignments', JSON.stringify(updated));
+  setNewAssignment({ title: '', description: '' });
+  setAssignmenTypeSelected('');
+  setTime(new Date(0, 0, 0, 12, 0));
+  setTimeArray(['1', '2', '0', '0']);
+  setDisplayTime('12:00');
+  setIsTimePicked(false); // Reset on save
+  setIsModalVisible(false);
+};
   const handleDeleteAssignment = async (assignment: Assignment): Promise<void> => {
   const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
   const updatedAssignments = { ...assignments };
@@ -499,19 +503,24 @@ export default function HomeScreen() {
               style={styles.input}
               multiline
             />
-            <Pressable onPress={showTimePicker}>
-              <View style={styles.timePickerContainer}>
-                <View style={{ flexDirection: 'row' }}>
-                  <HourBox value={timeArray[0]} />
-                  <HourBox value={timeArray[1]} />
-                </View>
-                <Text style={styles.timeSeparator}>:</Text>
-                <View style={{ flexDirection: 'row' }}>
-                  <HourBox value={timeArray[2]} />
-                  <HourBox value={timeArray[3]} />
-                </View>
-              </View>
-            </Pressable>
+            <View style={{ alignItems: 'center', marginBottom: 16 }}>
+  <Pressable onPress={showTimePicker}>
+    <View style={{
+      backgroundColor: colors.lighterSurface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: accent,
+      width: 80,
+      height: 40,
+    }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.onSurface }}>
+        {displayTime || '12:00'}
+      </Text>
+    </View>
+  </Pressable>
+</View>
             <View style={styles.modalButtons}>
               <Button variant="outline" className='bg-red-500' onPress={() => setIsModalVisible(false)}>
                 <ButtonText>Cancel</ButtonText>
