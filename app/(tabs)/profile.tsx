@@ -10,6 +10,7 @@ import StatisticBar from '@/components/statisticbar.js';
 import { useTheme } from '@/components/ThemeContext';
 import * as Animatable from 'react-native-animatable';
 import { useFocusEffect } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 const Profile = () => {
   const { colors } = useTheme();
@@ -30,6 +31,8 @@ const Profile = () => {
     lastMonth: {},
     currentYear: {}
   });
+
+  
   
  const loadAssignments = async () => {
   setRefreshing(true);
@@ -124,9 +127,18 @@ const Profile = () => {
           if (updatedAssignmentsForDate.length === 0) {
             delete updatedAssignments[dateKey];
           }
+         
           
           await AsyncStorage.setItem('assignments', JSON.stringify(updatedAssignments));
-          loadAssignments();
+            Toast.show({
+            type: 'info',
+            text1: 'Assignment deleted!',
+            position: 'top',
+            });
+            // Wait a short moment before reloading assignments so the toast is visible
+            setTimeout(() => {
+            loadAssignments();
+            }, 500);
         }
       }
     } catch (error) {

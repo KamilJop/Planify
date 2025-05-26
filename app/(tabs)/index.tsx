@@ -27,6 +27,7 @@ import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/components/ThemeContext';
 import * as Animatable from 'react-native-animatable';
 import { useFocusEffect } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 
 
@@ -320,6 +321,11 @@ export default function HomeScreen() {
   };
 
   setAssignments(updated);
+    Toast.show({
+                  type: 'info',
+                  text1: 'Assignment added!',
+                  position: 'top',
+             });
   await AsyncStorage.setItem('assignments', JSON.stringify(updated));
   setNewAssignment({ title: '', description: '' });
   setAssignmenTypeSelected('');
