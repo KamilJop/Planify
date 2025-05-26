@@ -72,6 +72,39 @@ const Settings = () => {
     });
   };
 
+  const handleNotificationToggle = async () => {
+  const newValue = !notifications;
+  setNotifications(newValue);
+  try {
+    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
+  } catch (e) {
+    console.error("Failed to save notification setting:", e);
+  }
+};
+
+const handleNotificationTimeChange = async (value: number) => {
+  setNotificationTime(value);
+  try {
+    await AsyncStorage.setItem('notificationTime', JSON.stringify(value));
+  } catch (e) {
+    console.error("Failed to save notification time:", e);
+  }
+};
+
+React.useEffect(() => {
+  const loadNotificationSettings = async () => {
+    try {
+      const savedTime = await AsyncStorage.getItem('notificationTime');
+      if (savedTime !== null) {
+        setNotificationTime(JSON.parse(savedTime));
+      }
+    } catch (e) {
+      console.error("Failed to load notification settings:", e);
+    }
+  };
+  loadNotificationSettings();
+}, []);
+
   // Handle accent color change with toast
   const handleAccentChange = (color: string) => {
     setAccent(color);
@@ -240,7 +273,7 @@ const Settings = () => {
               style={{}}
               size='sm'
               value={notifications}
-              onValueChange={() => setNotifications(!notifications)}
+              onValueChange={handleNotificationToggle}
               trackColor={{ false: colors.onSurface, true: accent }}
               thumbColor={colors.onBackground}
               ios_backgroundColor={colors.onSurface}
@@ -273,13 +306,13 @@ const Settings = () => {
                 dropdownIconColor={accent}
                 mode="dropdown"
                 selectedValue={notificationTime}
-                onValueChange={(itemValue) => setNotificationTime(Number(itemValue))}
+                onValueChange={(itemValue) => handleNotificationTimeChange(Number(itemValue))}
               >
-                <Picker.Item label="15 min" value="15" />
-                <Picker.Item label="30 min" value="30" />
-                <Picker.Item label="1 hour" value="60" />
-                <Picker.Item label="2 hours" value="120" />
-                <Picker.Item label="6 hours" value="360" />
+                <Picker.Item label="15 min" value={15} />
+                <Picker.Item label="30 min" value={30} />
+                <Picker.Item label="1 hour" value={60} />
+                <Picker.Item label="2 hours" value={120} />
+                <Picker.Item label="6 hours" value={360} />
               </Picker>
             </View>
           </HStack>
