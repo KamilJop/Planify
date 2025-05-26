@@ -15,6 +15,10 @@ import { Center } from "@/components/ui/center";
 import { Heading } from "@/components/ui/heading";
 import { useFocusEffect } from '@react-navigation/native';
 import { Icon, CloseIcon } from "@/components/ui/icon";
+import PushNotification from "react-native-push-notification";
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+
 
 // Import your face images
 const image1 = require('@/assets/faces/uifaces-popular-image1.jpg');
@@ -55,7 +59,39 @@ const Settings = () => {
     };
     loadProfileImage();
   }, []);
-   
+
+  React.useEffect(() => {
+    // Request permissions on mount
+    (async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Notification permissions not granted!');
+      }
+    })();
+  }, []);
+
+ async function scheduleNotification(minutes: number) {
+    await Notifications.cancelAllScheduledNotificationsAsync(); // Clear old
+
+    // Schedule new notification
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Reminder",
+        body: "This is your notification!",
+        sound: true,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: minutes * 60, // Convert minutes to seconds for trigger
+        repeats: true,
+      },
+    });
+  }
+
+  const cancelNotifications = async () => {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+  };
+
    useFocusEffect(
     React.useCallback(() => {
       setAnimationKey(prevKey => prevKey + 1);
@@ -73,37 +109,54 @@ const Settings = () => {
   };
 
   const handleNotificationToggle = async () => {
-  const newValue = !notifications;
-  setNotifications(newValue);
-  try {
-    await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
-  } catch (e) {
-    console.error("Failed to save notification setting:", e);
-  }
-};
+    const newValue = !notifications;
+    setNotifications(newValue);
 
-const handleNotificationTimeChange = async (value: number) => {
-  setNotificationTime(value);
-  try {
-    await AsyncStorage.setItem('notificationTime', JSON.stringify(value));
-  } catch (e) {
-    console.error("Failed to save notification time:", e);
-  }
-};
-
-React.useEffect(() => {
-  const loadNotificationSettings = async () => {
     try {
-      const savedTime = await AsyncStorage.getItem('notificationTime');
-      if (savedTime !== null) {
-        setNotificationTime(JSON.parse(savedTime));
-      }
+      await AsyncStorage.setItem('notificationsEnabled', JSON.stringify(newValue));
     } catch (e) {
-      console.error("Failed to load notification settings:", e);
+      console.error("Failed to save notification setting:", e);
+    }
+
+    if (newValue) {
+      await scheduleNotification(notificationTime);
+    } else {
+      await cancelNotifications();
     }
   };
-  loadNotificationSettings();
-}, []);
+
+
+  const handleNotificationTimeChange = async (value: number) => {
+    setNotificationTime(value);
+
+    try {
+      await AsyncStorage.setItem('notificationTime', JSON.stringify(value));
+    } catch (e) {
+      console.error("Failed to save notification time:", e);
+    }
+
+    if (notifications) {
+      await scheduleNotification(value);
+    }
+  };
+
+  React.useEffect(() => {
+    const loadNotificationSettings = async () => {
+      try {
+        const savedTime = await AsyncStorage.getItem('notificationTime');
+        const savedEnabled = await AsyncStorage.getItem('notificationsEnabled');
+        if (savedTime !== null) {
+          setNotificationTime(JSON.parse(savedTime));
+        }
+        if (savedEnabled !== null) {
+          setNotifications(JSON.parse(savedEnabled));
+        }
+      } catch (e) {
+        console.error("Failed to load notification settings:", e);
+      }
+    };
+    loadNotificationSettings();
+  }, []);
 
   // Handle accent color change with toast
   const handleAccentChange = (color: string) => {
