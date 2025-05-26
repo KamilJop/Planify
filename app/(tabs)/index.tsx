@@ -11,19 +11,16 @@ import {
   StyleSheet,
   RefreshControl,
 } from 'react-native';
-import DateTimePicker, { useDefaultStyles, DateType } from 'react-native-ui-datepicker';
+import { DateType } from 'react-native-ui-datepicker';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
 import { AddIcon, TrashIcon } from '@/components/ui/icon';
 import dayjs, { Dayjs } from 'dayjs';
 import { format } from 'date-fns';
 import RadioButton from '@/components/radiobutton';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import HourBox from '@/components/hourbox';
 import { Calendar } from 'react-native-calendars';
 import { DateData } from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useColorScheme } from 'react-native';
-import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/components/ThemeContext';
 import * as Animatable from 'react-native-animatable';
 import { useFocusEffect } from '@react-navigation/native';
@@ -253,27 +250,39 @@ export default function HomeScreen() {
 
   useEffect(() => {
   },  [assignments]);
-  const showTimePicker = () => {
-    DateTimePickerAndroid.open({
-      value: time || new Date(0, 0, 0, 12, 0),
-      mode: 'time',
-      display: 'spinner',
-      is24Hour: true,
-      minuteInterval: 10,
-      onChange: (event, selectedTime) => {
-  if (event.type === 'set') {
-    const currentTime = selectedTime || new Date(0, 0, 0, 12, 0);
-    setIsTimePicked(true); // <- Track user interaction
-    setTime(currentTime);
-    const hours = currentTime.getHours();
-    const minutes = currentTime.getMinutes();
-    const timeDigits = [...hours.toString().split(''), ...minutes.toString().split('')];
-    setTimeArray(timeDigits);
-    setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
-  }
-},
-    });
-  };
+const showTimePicker = () => {
+  DateTimePickerAndroid.open({
+    value: time || new Date(), // use current time as fallback
+    mode: 'time',
+    display: 'spinner',
+    is24Hour: true,
+    minuteInterval: 10,
+    onChange: (event, selectedTime) => {
+      if (event.type === 'set' && selectedTime) {
+        setIsTimePicked(true);
+        // Normalize the selected time to a date object with today’s date, but only time matters
+        const now = new Date();
+        const normalizedTime = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          selectedTime.getHours(),
+          selectedTime.getMinutes(),
+          0,
+          0
+        );
+        setTime(normalizedTime);
+
+        const hours = normalizedTime.getHours();
+        const minutes = normalizedTime.getMinutes();
+
+        setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
+        // Also update timeArray if needed
+        setTimeArray([...hours.toString().padStart(2, '0'), ...minutes.toString().padStart(2, '0')]);
+      }
+    },
+  });
+};
   
   const RadioData = [
     { value: 'Sport' },
