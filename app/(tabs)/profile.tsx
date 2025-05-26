@@ -8,7 +8,8 @@ import { TrashIcon } from '@/components/ui/icon';
 import dayjs from 'dayjs';
 import StatisticBar from '@/components/statisticbar.js';
 import { useTheme } from '@/components/ThemeContext';
-import { Pressable } from 'react-native';
+import * as Animatable from 'react-native-animatable';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Profile = () => {
   const { colors } = useTheme();
@@ -163,6 +164,15 @@ const Profile = () => {
 
   ];
 
+  const [animationKey, setAnimationKey] = useState(0);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setAnimationKey(prevKey => prevKey + 1);
+      return () => {};
+    }, [])
+  );
+
 
   // Load selected profile image index from AsyncStorage
   const loadProfileImage = async () => {
@@ -189,7 +199,7 @@ const Profile = () => {
   // The image to display as profile
   const profileImage =
     selectedImage ||
-    require('@/assets/images/profile-image.jpg');
+    require('@/assets/faces/uifaces-popular-image1.jpg');
 
 
 
@@ -206,13 +216,30 @@ const Profile = () => {
         />
       }
     >
+       <Animatable.View 
+        key={`profile-container-${animationKey}`}
+        animation="fadeInUp"
+        duration={500}
+        style={{ width: '100%', alignItems: 'center' }}
+      >
       <View style={[styles.profileContainer, { backgroundColor: colors.surface, marginTop: 50 }]}>
-        <Image 
-          source={profileImage} 
-          alt="Profile Image" 
-          style={styles.profileImage}
-        />
-        
+
+          <Animatable.Image 
+            animation="pulse"
+            duration={2000}
+            iterationCount="infinite"
+            source={profileImage} 
+            alt="Profile Image" 
+            style={styles.profileImage}
+          />
+
+                <Animatable.View 
+          key={`assignments-section-${animationKey}`}
+          animation="fadeInUp"
+          duration={600}
+          delay={200}
+          style={[styles.assignmentsHeader, { backgroundColor: colors.surface, width: '90%' }]}
+        >
         <View style={[styles.assignmentsHeader, { backgroundColor: colors.surface }]}>
           <Text style={[styles.headerText, { color: colors.textColor }]}>Upcoming assignments</Text>
           
@@ -220,59 +247,100 @@ const Profile = () => {
             <Text style={[styles.emptyText, { color: colors.textColor }]}>No upcoming assignments</Text>
           ) : (
             <View style={styles.assignmentsContainer}>
-              {upcomingAssignments.map((assignment, index) => (
-                <View key={index} style={[styles.assignmentItem, { 
-                  backgroundColor: colors.surface,
-                  borderColor: colors.onSurface + '20'
-                }]}>
-                  <View style={styles.assignmentInfo}>
-                    <Text style={[styles.assignmentDate, { color: colors.primary }]}>
-                      {dayjs(assignment.date).format('MMM D, YYYY')} at {formatTime(assignment.time)}
-                    </Text>
-                    <Text style={[styles.assignmentTitle, { color: colors.onSurface }]}>
-                      {assignment.title}
-                    </Text>
-                    {assignment.description && (
-                      <Text style={[styles.assignmentDescription, { color: colors.onSurface }]}>
-                        {assignment.description}
+              {upcomingAssignments.slice(0, 5).map((assignment, index) => (
+                <Animatable.View 
+                  key={`assignment-${index}-${animationKey}`}
+                  animation="fadeInRight"
+                  duration={500}
+                  delay={300 + (index * 100)}
+                  style={[styles.assignmentItem, { 
+                    backgroundColor: colors.surface,
+                    borderColor: colors.onSurface + '20'
+                  }]}
+                >
+                  <View key={index} style={[styles.assignmentItem, { 
+                    backgroundColor: colors.surface,
+                    borderColor: colors.onSurface + '20'
+                  }]}>
+                    <View style={styles.assignmentInfo}>
+                      <Text style={[styles.assignmentDate, { color: colors.primary }]}>
+                        {dayjs(assignment.date).format('MMM D, YYYY')} at {formatTime(assignment.time)}
                       </Text>
-                    )}
-                    <Text style={[styles.assignmentType, { color: colors.onSurface }]}>
-                      Type: {assignment.type}
-                    </Text>
+                      <Text style={[styles.assignmentTitle, { color: colors.onSurface }]}>
+                        {assignment.title}
+                      </Text>
+                      {assignment.description && (
+                        <Text style={[styles.assignmentDescription, { color: colors.onSurface }]}>
+                          {assignment.description}
+                        </Text>
+                      )}
+                      <Text style={[styles.assignmentType, { color: colors.onSurface }]}>
+                        Type: {assignment.type}
+                      </Text>
+                    </View>
+                    <Button 
+                      onPress={() => handleDeleteAssignment(assignment)}
+                      style={styles.deleteButton}
+                    >
+                      <ButtonIcon 
+                        as={TrashIcon}
+                        size="md" 
+                        color={colors.error} 
+                        style={{ width: 24, height: 24 }}
+                      />
+                    </Button>
                   </View>
-                  <Button 
-                    onPress={() => handleDeleteAssignment(assignment)}
-                    style={styles.deleteButton}
-                  >
-                    <ButtonIcon 
-                      as={TrashIcon}
-                      size="md" 
-                      color={colors.error} 
-                      style={{ width: 24, height: 24 }}
-                    />
-                  </Button>
-                </View>
+                </Animatable.View>
               ))}
             </View>
           )}
+           <Animatable.View
+          key={`stats-container-${animationKey}`}
+          animation="fadeInUp"
+          duration={600}
+          delay={400}
+        >
+          <Animatable.View
+            key={`current-month-${animationKey}`}
+            animation="fadeInLeft"
+            duration={500}
+            delay={500}
+          >
           <StatisticBar 
             statistics={statistics.currentMonth}
             customStyles={{ marginBottom: 20, }}
             ownText={"This Month's Assignments"} 
           />
+          </Animatable.View>
+            <Animatable.View
+            key={`last-month-${animationKey}`}
+            animation="fadeInLeft"
+            duration={500}
+            delay={550}
+          >
           <StatisticBar 
             statistics={statistics.lastMonth}
             customStyles={{ marginBottom: 20 }}
             ownText={"Last Month's Assignments"} 
           />
+          </Animatable.View>
+           <Animatable.View
+            key={`this-year-${animationKey}`}
+            animation="fadeInLeft"
+            duration={500}
+            delay={600}
+          >
           <StatisticBar 
             statistics={statistics.currentYear}
             customStyles={{ marginBottom: 20 }}
             ownText={"This Year's Assignments"} 
           />
+          </Animatable.View>
+          </Animatable.View>
         </View>    
+        </Animatable.View>
       </View>
+      </Animatable.View>
     </ScrollView>
   );
 };

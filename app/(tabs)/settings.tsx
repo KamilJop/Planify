@@ -126,7 +126,7 @@ const Settings = () => {
   return (
     <Animatable.View 
       animation="fadeInUp" 
-      key={animationKey}
+      key={`whole-${animationKey}`}
       duration={700} 
       style={{
         flex: 1, 
@@ -138,7 +138,7 @@ const Settings = () => {
       {/* Theme and accent color */}
       <Animatable.View 
         animation="bounceIn" 
-        key={animationKey}
+        key={`theme-${animationKey}`}
         delay={100} 
         style={{ width: width, height: 100, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}
       >
@@ -190,7 +190,7 @@ const Settings = () => {
       {/* Change username and profile picture */}
       <Animatable.View 
         animation="bounceIn" 
-        key={animationKey}
+        key={`username-${animationKey}`}
         delay={200} 
         style={{ width: width, height: 120, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, padding: 5, margin: 10 }}
       >
@@ -224,7 +224,7 @@ const Settings = () => {
       {/* Notifications */}
       <Animatable.View 
         animation="bounceIn" 
-        key={animationKey}
+        key={`notifications-${animationKey}`}
         delay={300} 
         style={{ width: width, height: 130, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 10, margin: 10 }}
       >

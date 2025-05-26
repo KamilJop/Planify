@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -24,6 +25,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/components/ThemeContext';
+import * as Animatable from 'react-native-animatable';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 
@@ -64,7 +67,14 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false); 
   const [isTimePicked, setIsTimePicked] = useState(false);
   const { colors } = useTheme();
-  const { accent } = useTheme()
+  const { accent } = useTheme();
+  const [animationKey, setAnimationKey] = useState(0);
+  useFocusEffect(
+    React.useCallback(() => {
+      setAnimationKey(prevKey => prevKey + 1);
+      return () => {};
+    }, [])
+  );
   const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -346,9 +356,15 @@ export default function HomeScreen() {
   });
 
   return (
-    <ScrollView
+  <Animatable.View 
+    key={`container-${animationKey}`}
+    animation="fadeInUp" 
+    duration={500}
+    style={{ flex: 1 }} // Ensure full height
+  >
+  <ScrollView
     style={styles.container}
-    contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
+    contentContainerStyle={{ alignItems: 'center', justifyContent: 'flex-start', paddingBottom: 120 }} // Increased paddingBottom
     refreshControl={
       <RefreshControl
         refreshing={refreshing}
@@ -356,8 +372,15 @@ export default function HomeScreen() {
         tintColor={colors.primary}
       />
     }
+    keyboardShouldPersistTaps="handled"
   >
-      <View style={styles.calendarContainer}>
+    <View style={styles.calendarContainer}>
+
+        <Animatable.View 
+          key={`calendar-${animationKey}`}
+          animation="bounceIn" 
+          duration={400}
+        >
       <Calendar
       key ={calendarKey}
   style={styles.calendar}
@@ -403,6 +426,7 @@ export default function HomeScreen() {
     textDayHeaderFontWeight: 'bold',
   }}
 />
+</Animatable.View>
 
         {selected && (
           <View style={styles.assignmentsContainer}>
@@ -424,6 +448,18 @@ export default function HomeScreen() {
             ) : (
               <View>
                 {sortedAssignments.map((assignment, index) => (
+                  <Animatable.View 
+              key={`assignment-${index}-${animationKey}`}
+              animation="fadeInUp"
+              duration={800}
+              delay={index * 100}
+              style={{ 
+                margin: 10, 
+                padding: 10, 
+                borderRadius: 10, 
+                backgroundColor: RadioColors[assignment.type as keyof typeof RadioColors] || colors.background,
+              }}
+            >
                   <View key={index} style={styles.assignmentItem}>
                     <View style={styles.timeBox}>
                       <Text style={styles.timeText}>
@@ -459,9 +495,11 @@ export default function HomeScreen() {
                             />
                           </Button>
                         </View>
+                        
                       </View>
                     </View>
                   </View>
+                  </Animatable.View>
                 ))}
               </View>
             )}
@@ -469,69 +507,124 @@ export default function HomeScreen() {
         )}
       </View>
 
-      <Modal visible={isModalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>New Assignment</Text>
-            <View style={styles.radioButtonContainer}>
-              {RadioData.map((item, index) => (
-                <View key={index} style={styles.radioButtonWrapper}>
-                  <RadioButton
-                    data={[item]}
-                    onSelect={setAssignmenTypeSelected}
-                    value={assignmentTypeSelected}
-                  />
-                </View>
-              ))}
-            </View>
-            <TextInput
-              placeholder="Title *"
-              placeholderTextColor={colors.onSurface + '77'}
-              value={newAssignment.title}
-              onChangeText={(text) =>
-                setNewAssignment((prev) => ({ ...prev, title: text }))
-              }
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Description"
-              placeholderTextColor={colors.onSurface + '77'}
-              value={newAssignment.description}
-              onChangeText={(text) =>
-                setNewAssignment((prev) => ({ ...prev, description: text }))
-              }
-              style={styles.input}
-              multiline
-            />
-            <View style={{ alignItems: 'center', marginBottom: 16 }}>
-  <Pressable onPress={showTimePicker}>
-    <View style={{
-      backgroundColor: colors.lighterSurface,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: accent,
-      width: 80,
-      height: 40,
-    }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.onSurface }}>
-        {displayTime || '12:00'}
+<Modal visible={isModalVisible} transparent>
+  <Animatable.View 
+    animation="fadeIn"
+    duration={300}
+    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000000aa' }}
+  >
+    <Animatable.View 
+      animation="bounceIn"
+      duration={600}
+      style={{ 
+        backgroundColor: colors.surface, 
+        padding: 20, 
+        borderRadius: 10,
+        width: width * 0.85 // Slightly wider for better form display
+      }}
+    >
+      <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.onSurface, marginBottom: 15 }}>
+        New Assignment
       </Text>
-    </View>
-  </Pressable>
-</View>
-            <View style={styles.modalButtons}>
-              <Button variant="outline" className='bg-red-500' onPress={() => setIsModalVisible(false)}>
-                <ButtonText>Cancel</ButtonText>
-              </Button>
-              <Button variant="outline" className='bg-green-400' onPress={handleAddAssignment}>
-                <ButtonText>Save</ButtonText>
-              </Button>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      
+      {/* Radio Buttons - Animated */}
+      <Animatable.View 
+        animation="fadeInRight"
+        duration={400}
+        delay={100}
+        style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 15 }}
+      >
+        {RadioData.map((item, idx) => (
+          <RadioButton 
+            key={idx} 
+            data={[item]} 
+            onSelect={setAssignmenTypeSelected} 
+            value={assignmentTypeSelected} 
+          />
+        ))}
+      </Animatable.View>
+
+      {/* Title Input - Animated */}
+      <Animatable.View animation="fadeInRight" duration={400} delay={200}>
+        <TextInput
+          placeholder="Title *"
+          placeholderTextColor={colors.onSurface + '80'}
+          value={newAssignment.title}
+          onChangeText={(text) => setNewAssignment({ ...newAssignment, title: text })}
+          style={{ 
+            borderBottomColor: colors.primary, 
+            borderBottomWidth: 1, 
+            marginBottom: 15, 
+            color: colors.onSurface,
+            fontSize: 16,
+            paddingVertical: 8
+          }}
+        />
+      </Animatable.View>
+
+      {/* Description Input - Animated */}
+      <Animatable.View animation="fadeInRight" duration={400} delay={300}>
+        <TextInput
+          placeholder="Description"
+          placeholderTextColor={colors.onSurface + '80'}
+          value={newAssignment.description}
+          onChangeText={(text) => setNewAssignment({ ...newAssignment, description: text })}
+          style={{ 
+            borderBottomColor: colors.primary, 
+            borderBottomWidth: 1, 
+            marginBottom: 15, 
+            color: colors.onSurface,
+            fontSize: 16,
+            paddingVertical: 8
+          }}
+        />
+      </Animatable.View>
+
+      {/* Time Picker - Animated */}
+      <Animatable.View animation="fadeInRight" duration={400} delay={400}>
+        <Pressable 
+          onPress={showTimePicker}
+          style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center',
+            marginBottom: 20
+          }}
+        >
+          <Text style={{ fontSize: 16, color: colors.primary, marginRight: 10 }}>
+            Time:
+          </Text>
+          <Text style={{ fontSize: 18, color: colors.primary, fontWeight: 'bold' }}>
+            {displayTime}
+          </Text>
+        </Pressable>
+      </Animatable.View>
+
+      {/* Buttons - Animated */}
+      <Animatable.View 
+        animation="fadeInUp"
+        duration={500}
+        delay={500}
+        style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}
+      >
+        <Button 
+          variant="outline" 
+          onPress={() => setIsModalVisible(false)}
+          style={{ borderColor: colors.primary }}
+        >
+          <ButtonText style={{ color: colors.primary }}>Cancel</ButtonText>
+        </Button>
+        <Button 
+          onPress={handleAddAssignment}
+          style={{ backgroundColor: colors.primary }}
+          disabled={!newAssignment.title.trim()}
+        >
+          <ButtonText style={{ color: colors.onPrimary }}>Save</ButtonText>
+        </Button>
+      </Animatable.View>
+    </Animatable.View>
+  </Animatable.View>
+</Modal>
     </ScrollView>
+    </Animatable.View>
   );
 }
