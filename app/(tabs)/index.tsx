@@ -567,7 +567,7 @@ const showTimePicker = () => {
           value={newAssignment.title}
           onChangeText={(text) => setNewAssignment({ ...newAssignment, title: text })}
           style={{ 
-            borderBottomColor: colors.primary, 
+            borderBottomColor: accent, 
             borderBottomWidth: 1, 
             marginBottom: 15, 
             color: colors.onSurface,
@@ -585,7 +585,7 @@ const showTimePicker = () => {
           value={newAssignment.description}
           onChangeText={(text) => setNewAssignment({ ...newAssignment, description: text })}
           style={{ 
-            borderBottomColor: colors.primary, 
+            borderBottomColor: accent, 
             borderBottomWidth: 1, 
             marginBottom: 15, 
             color: colors.onSurface,
@@ -605,10 +605,10 @@ const showTimePicker = () => {
             marginBottom: 20
           }}
         >
-          <Text style={{ fontSize: 16, color: colors.primary, marginRight: 10 }}>
+          <Text style={{ fontSize: 16, color: accent, marginRight: 10 }}>
             Time:
           </Text>
-          <Text style={{ fontSize: 18, color: colors.primary, fontWeight: 'bold' }}>
+          <Text style={{ fontSize: 18, color: accent, fontWeight: 'bold' }}>
             {displayTime}
           </Text>
         </Pressable>
@@ -624,13 +624,13 @@ const showTimePicker = () => {
         <Button 
           variant="outline" 
           onPress={() => setIsModalVisible(false)}
-          style={{ borderColor: colors.primary }}
+          style={{ borderColor: accent }}
         >
-          <ButtonText style={{ color: colors.primary }}>Cancel</ButtonText>
+          <ButtonText style={{ color: accent }}>Cancel</ButtonText>
         </Button>
         <Button 
           onPress={handleAddAssignment}
-          style={{ backgroundColor: colors.primary }}
+          style={{ backgroundColor: accent }}
           disabled={!newAssignment.title.trim()}
         >
           <ButtonText style={{ color: colors.onPrimary }}>Save</ButtonText>
