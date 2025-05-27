@@ -15,6 +15,7 @@ import { Center } from "@/components/ui/center";
 import { Heading } from "@/components/ui/heading";
 import { useFocusEffect } from '@react-navigation/native';
 import { Icon, CloseIcon } from "@/components/ui/icon";
+import { BackHandler } from 'react-native';
 
 // Import your face images
 const image1 = require('@/assets/faces/uifaces-popular-image1.jpg');
@@ -117,29 +118,43 @@ React.useEffect(() => {
 
   // Handle app reset with toast
   const handleReset = async () => {
-    try {
-      await AsyncStorage.clear();
-      setAccent('#a258d6');
-      setNotifications(true);
-      setNotificationTime(15);
-      if (theme === 'dark') toggleTheme();
-      
-      Toast.show({
-        type: 'success',
-        text1: 'App reset to default!',
-        position: 'bottom',
-      });
-      setShowModal(false);
-    } catch (e) {
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to reset!',
-        position: 'bottom',
-      });
-      console.error("Failed to reset:", e);
-    }
-  };
+  try {
+    // Clear all AsyncStorage data
+    await AsyncStorage.clear();
 
+    // Reset in-memory state
+    setAccent('#a258d6');
+    setNotifications(true);
+    setNotificationTime(15);
+    setSelectedImage(image1);
+
+    // If theme is dark, switch to light
+    if (theme === 'dark') toggleTheme();
+
+    Toast.show({
+      type: 'success',
+      text1: 'App reset to default! Reloading...',
+      position: 'bottom',
+    });
+
+    setShowModal(false);
+
+    // Delay slightly to allow toast to show
+    setTimeout(() => {
+      // Solution 1: Exit and let the app restart (works on Android)
+      BackHandler.exitApp();
+      
+
+    }, 1500);
+  } catch (e) {
+    Toast.show({
+      type: 'error',
+      text1: 'Failed to reset!',
+      position: 'bottom',
+    });
+    console.error("Failed to reset:", e);
+  }
+};
   // Handle profile image change
   const handleImageChange = async (img: any, idx: number) => {
     setSelectedImage(img);

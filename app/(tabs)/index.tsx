@@ -234,19 +234,22 @@ export default function HomeScreen() {
     loadAssignments();
   }, []);
   const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      const stored = await AsyncStorage.getItem('assignments');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setAssignments(parsed);
+      setRefreshing(true);
+      try {
+        const stored = await AsyncStorage.getItem('assignments');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setAssignments(parsed);
+        } else {
+          setAssignments({}); // Clear assignments state if AsyncStorage is empty
+        }
+      } catch (error) {
+        console.error('Failed to refresh assignments:', error);
+        setAssignments({}); // Also clear on error
+      } finally {
+        setRefreshing(false);
       }
-    } catch (error) {
-      console.error('Failed to refresh assignments:', error);
-    } finally {
-      setRefreshing(false);
-    }
-  };
+    };
 
   useEffect(() => {
   },  [assignments]);
@@ -258,27 +261,34 @@ const showTimePicker = () => {
     is24Hour: true,
     minuteInterval: 10,
     onChange: (event, selectedTime) => {
-      if (event.type === 'set' && selectedTime) {
-        setIsTimePicked(true);
-        // Normalize the selected time to a date object with today’s date, but only time matters
-        const now = new Date();
-        const normalizedTime = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          selectedTime.getHours(),
-          selectedTime.getMinutes(),
-          0,
-          0
-        );
-        setTime(normalizedTime);
+      if (event.type === 'set') {
+        let pickedTime: Date | undefined = selectedTime;
+        // Fallback for some Android versions
+        if (!pickedTime && event?.nativeEvent?.timestamp) {
+          pickedTime = new Date(event.nativeEvent.timestamp);
+        }
+        if (pickedTime) {
+          setIsTimePicked(true);
+          // Normalize the selected time to a date object with today’s date, but only time matters
+          const now = new Date();
+          const normalizedTime = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            pickedTime.getHours(),
+            pickedTime.getMinutes(),
+            0,
+            0
+          );
+          setTime(normalizedTime);
 
-        const hours = normalizedTime.getHours();
-        const minutes = normalizedTime.getMinutes();
+          const hours = normalizedTime.getHours();
+          const minutes = normalizedTime.getMinutes();
 
-        setDisplayTime(`${hours}:${minutes.toString().padStart(2, '0')}`);
-        // Also update timeArray if needed
-        setTimeArray([...hours.toString().padStart(2, '0'), ...minutes.toString().padStart(2, '0')]);
+          setDisplayTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+          // Also update timeArray if needed
+          setTimeArray([...hours.toString().padStart(2, '0'), ...minutes.toString().padStart(2, '0')]);
+        }
       }
     },
   });
