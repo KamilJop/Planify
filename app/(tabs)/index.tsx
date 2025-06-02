@@ -27,9 +27,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
 
-
-
-
 type Assignment = {
   title: string;
   description: string;
@@ -51,8 +48,6 @@ const RadioColors = {
   Hobby: '#26C6DA',
 };
 
-
-
 export default function HomeScreen() {
   const [selected, setSelected] = useState<DateType | Dayjs>(dayjs());
   const [assignments, setAssignments] = useState<Record<string, Assignment[]>>({});
@@ -60,19 +55,12 @@ export default function HomeScreen() {
   const [newAssignment, setNewAssignment] = useState({ title: '', description: '' });
   const [assignmentTypeSelected, setAssignmenTypeSelected] = useState('');
   const [time, setTime] = useState(new Date());
-  const [timeArray, setTimeArray] = useState<string[]>(['1', '2', '0', '0']);
   const [displayTime, setDisplayTime] = useState('12:00');
   const [refreshing, setRefreshing] = useState(false); 
   const [isTimePicked, setIsTimePicked] = useState(false);
   const { colors } = useTheme();
   const { accent } = useTheme();
   const [animationKey, setAnimationKey] = useState(0);
-  useFocusEffect(
-    React.useCallback(() => {
-      setAnimationKey(prevKey => prevKey + 1);
-      return () => {};
-    }, [])
-  );
   const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -212,12 +200,32 @@ export default function HomeScreen() {
   },
 });
   const [calendarKey, setCalendarKey] = useState(0);
+    const RadioData = [
+    { value: 'Sport' },
+    { value: 'Work' },
+    { value: 'Study' },
+    { value: 'Family' },
+    { value: 'Travel' },
+    { value: 'Relax' },
+    { value: 'Social' },
+    { value: 'Hobby' },
+  ];
 
+  // Resetowanie animacji porzy otwarciu ekranu
+  useFocusEffect(
+    React.useCallback(() => {
+      setAnimationKey(prevKey => prevKey + 1);
+      return () => {};
+    }, [])
+  );
+
+
+  // Resetowanie kalendarza przy zmianie motywu lub koloru accent
   useEffect(() => {
     setCalendarKey(prev => prev + 1);
   }, [colors,accent]);
 
-
+  // Ładowanie zadań z AsyncStorage przy pierwszym renderowaniu
   useEffect(() => {
     const loadAssignments = async () => {
       try {
@@ -233,6 +241,7 @@ export default function HomeScreen() {
 
     loadAssignments();
   }, []);
+  // Funkcja obsługująca odświeżanie ekranu poprzez przeciągniecie palcem
   const onRefresh = async () => {
       setRefreshing(true);
       try {
@@ -241,21 +250,20 @@ export default function HomeScreen() {
           const parsed = JSON.parse(stored);
           setAssignments(parsed);
         } else {
-          setAssignments({}); // Clear assignments state if AsyncStorage is empty
+          setAssignments({}); 
         }
       } catch (error) {
         console.error('Failed to refresh assignments:', error);
-        setAssignments({}); // Also clear on error
+        setAssignments({});
       } finally {
         setRefreshing(false);
       }
     };
 
-  useEffect(() => {
-  },  [assignments]);
+    // Wyświetlanie modalu do wyboru czasu
 const showTimePicker = () => {
   DateTimePickerAndroid.open({
-    value: time || new Date(), // use current time as fallback
+    value: time || new Date(), 
     mode: 'time',
     display: 'spinner',
     is24Hour: true,
@@ -263,13 +271,11 @@ const showTimePicker = () => {
     onChange: (event, selectedTime) => {
       if (event.type === 'set') {
         let pickedTime: Date | undefined = selectedTime;
-        // Fallback for some Android versions
         if (!pickedTime && event?.nativeEvent?.timestamp) {
           pickedTime = new Date(event.nativeEvent.timestamp);
         }
         if (pickedTime) {
           setIsTimePicked(true);
-          // Normalize the selected time to a date object with today’s date, but only time matters
           const now = new Date();
           const normalizedTime = new Date(
             now.getFullYear(),
@@ -286,94 +292,85 @@ const showTimePicker = () => {
           const minutes = normalizedTime.getMinutes();
 
           setDisplayTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
-          // Also update timeArray if needed
-          setTimeArray([...hours.toString().padStart(2, '0'), ...minutes.toString().padStart(2, '0')]);
         }
       }
     },
   });
 };
   
-  const RadioData = [
-    { value: 'Sport' },
-    { value: 'Work' },
-    { value: 'Study' },
-    { value: 'Family' },
-    { value: 'Travel' },
-    { value: 'Relax' },
-    { value: 'Social' },
-    { value: 'Hobby' },
-  ];
 
+  // Konwersja daty do formatu Date
   const convertToDate = (date: DateType | Dayjs): Date => {
     if (!date) throw new Error('Invalid date');
     return dayjs.isDayjs(date) ? date.toDate() : new Date(date);
   };
 
+  // Funkcja obsługująca dodawanie assignmentu
  const handleAddAssignment = async (): Promise<void> => {
-  if (!selected || !newAssignment.title.trim()) return;
+    if (!selected || !newAssignment.title.trim()) return;
 
-  let assignmentTime: Date;
-  if (isTimePicked) {
-    assignmentTime = time;
-  } else {
-    assignmentTime = new Date();
-    assignmentTime.setHours(12, 0, 0, 0); // Set to 12:00
-  }
+    let assignmentTime: Date;
+    if (isTimePicked) {
+      assignmentTime = time;
+    } else {
+      assignmentTime = new Date();
+      assignmentTime.setHours(12, 0, 0, 0); // Set to 12:00
+    }
 
-  const hours = assignmentTime.getHours().toString().padStart(2, '0');
-  const minutes = assignmentTime.getMinutes().toString().padStart(2, '0');
-  const formattedTime = `${hours}:${minutes}`;
+    const hours = assignmentTime.getHours().toString().padStart(2, '0');
+    const minutes = assignmentTime.getMinutes().toString().padStart(2, '0');
+    const formattedTime = `${hours}:${minutes}`;
 
-  const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
-  const updated = {
-    ...assignments,
-    [dateKey]: [
-      ...(assignments[dateKey] || []),
-      {
-        ...newAssignment,
-        date: dateKey,
-        time: formattedTime,
-        type: assignmentTypeSelected,
-      },
-    ],
+    const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
+    const updated = {
+      ...assignments,
+      [dateKey]: [
+        ...(assignments[dateKey] || []),
+        {
+          ...newAssignment,
+          date: dateKey,
+          time: formattedTime,
+          type: assignmentTypeSelected,
+        },
+      ],
+    };
+
+    setAssignments(updated);
+      Toast.show({
+                    type: 'info',
+                    text1: 'Assignment added!',
+                    position: 'top',
+              });
+    await AsyncStorage.setItem('assignments', JSON.stringify(updated));
+    setNewAssignment({ title: '', description: '' });
+    setAssignmenTypeSelected('');
+    setTime(new Date(0, 0, 0, 12, 0));
+    setDisplayTime('12:00');
+    setIsTimePicked(false); 
+    setIsModalVisible(false);
   };
 
-  setAssignments(updated);
-    Toast.show({
-                  type: 'info',
-                  text1: 'Assignment added!',
-                  position: 'top',
-             });
-  await AsyncStorage.setItem('assignments', JSON.stringify(updated));
-  setNewAssignment({ title: '', description: '' });
-  setAssignmenTypeSelected('');
-  setTime(new Date(0, 0, 0, 12, 0));
-  setTimeArray(['1', '2', '0', '0']);
-  setDisplayTime('12:00');
-  setIsTimePicked(false); // Reset on save
-  setIsModalVisible(false);
-};
+  // Funkcja obsługująca usuwanie assignmentu
   const handleDeleteAssignment = async (assignment: Assignment): Promise<void> => {
-  const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
-  const updatedAssignments = { ...assignments };
-  
+    const dateKey = format(convertToDate(selected), 'yyyy-MM-dd');
+    const updatedAssignments = { ...assignments };
+    
 
-  updatedAssignments[dateKey] = (updatedAssignments[dateKey] || []).filter((a) => a !== assignment);
-  
+    updatedAssignments[dateKey] = (updatedAssignments[dateKey] || []).filter((a) => a !== assignment);
+    
 
-  if (updatedAssignments[dateKey]?.length === 0) {
-    delete updatedAssignments[dateKey];
-  }
-  
-  setAssignments(updatedAssignments);
-  await AsyncStorage.setItem('assignments', JSON.stringify(updatedAssignments));
-};
+    if (updatedAssignments[dateKey]?.length === 0) {
+      delete updatedAssignments[dateKey];
+    }
+    
+    setAssignments(updatedAssignments);
+    await AsyncStorage.setItem('assignments', JSON.stringify(updatedAssignments));
+  };
 
   const selectedDateKey = selected ? format(convertToDate(selected), 'yyyy-MM-dd') : '';
   const selectedDateAssignments = assignments[selectedDateKey] || [];
 
-  // Sort assignments by time (ascending)
+  
   const sortedAssignments = selectedDateAssignments.sort((a, b) => {
     const timeA = parseInt(a.time.replace(':', ''), 10);
     const timeB = parseInt(b.time.replace(':', ''), 10);
@@ -385,11 +382,11 @@ const showTimePicker = () => {
     key={`container-${animationKey}`}
     animation="fadeInUp" 
     duration={500}
-    style={{ flex: 1 }} // Ensure full height
+    style={{ flex: 1 }} 
   >
   <ScrollView
     style={styles.container}
-    contentContainerStyle={{ alignItems: 'center', justifyContent: 'flex-start', paddingBottom: 120 }} // Increased paddingBottom
+    contentContainerStyle={{ alignItems: 'center', justifyContent: 'flex-start', paddingBottom: 120 }} 
     refreshControl={
       <RefreshControl
         refreshing={refreshing}
@@ -414,7 +411,6 @@ const showTimePicker = () => {
   }}
   markedDates={{
     ...Object.keys(assignments).reduce((acc, date) => {
-      // Only mark dates that have at least one assignment
       if (assignments[date]?.length > 0) {
         acc[date] = { 
           marked: true,
@@ -545,14 +541,13 @@ const showTimePicker = () => {
         backgroundColor: colors.surface, 
         padding: 20, 
         borderRadius: 10,
-        width: width * 0.85 // Slightly wider for better form display
+        width: width * 0.85
       }}
     >
       <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.onSurface, marginBottom: 15 }}>
         New Assignment
       </Text>
       
-      {/* Radio Buttons - Animated */}
       <Animatable.View 
         animation="fadeInRight"
         duration={400}
@@ -569,7 +564,6 @@ const showTimePicker = () => {
         ))}
       </Animatable.View>
 
-      {/* Title Input - Animated */}
       <Animatable.View animation="fadeInRight" duration={400} delay={200}>
         <TextInput
           placeholder="Title *"
@@ -587,7 +581,6 @@ const showTimePicker = () => {
         />
       </Animatable.View>
 
-      {/* Description Input - Animated */}
       <Animatable.View animation="fadeInRight" duration={400} delay={300}>
         <TextInput
           placeholder="Description"
@@ -605,7 +598,6 @@ const showTimePicker = () => {
         />
       </Animatable.View>
 
-      {/* Time Picker - Animated */}
       <Animatable.View animation="fadeInRight" duration={400} delay={400}>
         <Pressable 
           onPress={showTimePicker}
@@ -624,7 +616,6 @@ const showTimePicker = () => {
         </Pressable>
       </Animatable.View>
 
-      {/* Buttons - Animated */}
       <Animatable.View 
         animation="fadeInUp"
         duration={500}
@@ -649,6 +640,7 @@ const showTimePicker = () => {
     </Animatable.View>
   </Animatable.View>
 </Modal>
+
     </ScrollView>
     </Animatable.View>
   );
