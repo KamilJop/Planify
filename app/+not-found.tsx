@@ -1,25 +1,12 @@
-import { Link, Stack} from 'expo-router';
-import { StyleSheet, View, Text } from 'react-native';
+import {View, Text } from 'react-native';
 
 export default function NotFoundScreen() {
   return (
     <>
-      <View>
-        <Text>Text</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Page not found</Text>
       </View>
     </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-});

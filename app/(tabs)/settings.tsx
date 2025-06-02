@@ -5,7 +5,6 @@ import React from 'react';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/components/ThemeContext';
 import { Divider } from "@/components/ui/divider";
-import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -17,7 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Icon, CloseIcon } from "@/components/ui/icon";
 import { BackHandler } from 'react-native';
 
-// Import your face images
+
 const image1 = require('@/assets/faces/uifaces-popular-image1.jpg');
 const image2 = require('@/assets/faces/uifaces-popular-image2.jpg');
 const image3 = require('@/assets/faces/uifaces-popular-image3.jpg');
@@ -38,7 +37,9 @@ const Settings = () => {
 
   const width = Dimensions.get('window').width * 0.9;
 
-  // Load saved profile image
+
+  // Zaladowanie obrazu profilowego z AsyncStorage
+
   React.useEffect(() => {
     const loadProfileImage = async () => {
       try {
@@ -56,6 +57,8 @@ const Settings = () => {
     };
     loadProfileImage();
   }, []);
+
+  // Resetowanie animacji interfejsu przy każdym wejściu na ekran
    
    useFocusEffect(
     React.useCallback(() => {
@@ -63,7 +66,9 @@ const Settings = () => {
       return () => {};
     }, [])
   );
-  // Handle theme toggle with toast
+
+  // Funkcja obsługująca przełączanie motywu 
+
   const handleThemeToggle = () => {
     toggleTheme();
     Toast.show({
@@ -72,6 +77,8 @@ const Settings = () => {
       position: 'bottom',
     });
   };
+
+// Funkcja obsługująca przełączanie powiadomień
 
   const handleNotificationToggle = async () => {
   const newValue = !notifications;
@@ -83,6 +90,8 @@ const Settings = () => {
   }
 };
 
+// Funkcja obsługująca zmianę czasu powiadomień
+
 const handleNotificationTimeChange = async (value: number) => {
   setNotificationTime(value);
   try {
@@ -91,6 +100,8 @@ const handleNotificationTimeChange = async (value: number) => {
     console.error("Failed to save notification time:", e);
   }
 };
+
+// Załadowanie ustawień powiadomień z AsyncStorage przy otwarciu ekranu
 
 React.useEffect(() => {
   const loadNotificationSettings = async () => {
@@ -106,7 +117,7 @@ React.useEffect(() => {
   loadNotificationSettings();
 }, []);
 
-  // Handle accent color change with toast
+  // Obsługa zmiiany koloru accent
   const handleAccentChange = (color: string) => {
     setAccent(color);
     Toast.show({
@@ -116,19 +127,17 @@ React.useEffect(() => {
     });
   };
 
-  // Handle app reset with toast
+  // Obsługa resetowania aplikacji do domyślnych ustawień
   const handleReset = async () => {
   try {
-    // Clear all AsyncStorage data
-    await AsyncStorage.clear();
 
-    // Reset in-memory state
+    await AsyncStorage.clear();
     setAccent('#a258d6');
     setNotifications(true);
     setNotificationTime(15);
     setSelectedImage(image1);
 
-    // If theme is dark, switch to light
+
     if (theme === 'dark') toggleTheme();
 
     Toast.show({
@@ -139,12 +148,10 @@ React.useEffect(() => {
 
     setShowModal(false);
 
-    // Delay slightly to allow toast to show
-    setTimeout(() => {
-      // Solution 1: Exit and let the app restart (works on Android)
-      BackHandler.exitApp();
-      
 
+    setTimeout(() => {
+
+      BackHandler.exitApp();
     }, 1500);
   } catch (e) {
     Toast.show({
@@ -155,7 +162,7 @@ React.useEffect(() => {
     console.error("Failed to reset:", e);
   }
 };
-  // Handle profile image change
+  // Obsługa zmiany zdjęcia profilowego
   const handleImageChange = async (img: any, idx: number) => {
     setSelectedImage(img);
     try {
@@ -183,7 +190,7 @@ React.useEffect(() => {
         alignItems: 'center'
       }}
     >
-      {/* Theme and accent color */}
+      {/* Motyw oraz kolor akcentu */}
       <Animatable.View 
         animation="bounceIn" 
         key={`theme-${animationKey}`}
@@ -235,7 +242,7 @@ React.useEffect(() => {
         </HStack>
       </Animatable.View>
 
-      {/* Change username and profile picture */}
+      {/* Zmiana nazwy użytkownika oraz zdjęcia profilowego */}
       <Animatable.View 
         animation="bounceIn" 
         key={`username-${animationKey}`}
@@ -269,7 +276,7 @@ React.useEffect(() => {
         </HStack>
       </Animatable.View>
 
-      {/* Notifications */}
+      {/* Ustawienia powiadomień */}
       <Animatable.View 
         animation="bounceIn" 
         key={`notifications-${animationKey}`}
@@ -334,7 +341,7 @@ React.useEffect(() => {
         </HStack>
       </Animatable.View>
 
-      {/* Reset button */}
+      {/* Reset aplikacji do ustawień domyślnych */}
       <Animatable.View 
 
         animation="bounceIn" 
@@ -365,7 +372,7 @@ React.useEffect(() => {
         </TouchableOpacity>
       </Animatable.View>
 
-      {/* Reset Confirmation Modal */}
+      {/* Modal z potwierdzeniem do resetu ustawień domyślnych */}
       <NativeModal
         animationType="slide"
         transparent={true}
@@ -404,7 +411,7 @@ React.useEffect(() => {
         </Center>
       </NativeModal>
 
-      {/* Profile Picture Selection Modal */}
+      {/* Modal wyboru zdjęcia profilowego */}
       <NativeModal
         animationType="slide"
         transparent={true}

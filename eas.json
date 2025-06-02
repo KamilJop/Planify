@@ -1,4 +1,9 @@
 {
+  "cli": {
+    "version": ">= 16.6.2",
+    "appVersionSource": "remote"
+  },
+  
   "build": {
     "preview": {
       "android": {
@@ -19,3 +24,4 @@
     "production": {}
   }
 }
+

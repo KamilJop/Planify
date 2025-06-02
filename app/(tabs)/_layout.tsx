@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Image } from 'react-native';
 import { useTheme } from '@/components/ThemeContext';
-
+import Toast from 'react-native-toast-message';
 const TabLayoutWrapper = () => {
 
   const { colors } = useTheme();
@@ -13,6 +13,7 @@ const TabLayoutWrapper = () => {
   const settingsIcon = require('@/assets/icons/settings.png');
 
   return (
+    
     <Tabs 
       screenOptions={{ 
         headerShown: false, 
@@ -85,6 +86,7 @@ const TabLayoutWrapper = () => {
         }}
       />
     </Tabs>
+    
   );
 };
 
