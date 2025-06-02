@@ -32,7 +32,8 @@ export default function RadioButton({ data, onSelect, value }) {
                 <Icon name={iconName} size={iconSize} color={color} />
                 <Text className="text-sm mt-1" style={{ color }}>{item.value}</Text>
               </View>
-            </Pressable>
+            </Pressable>  
+            
           );
         })}
       </View>

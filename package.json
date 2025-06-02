@@ -13,6 +13,7 @@
   },
   "jest": {
     "preset": "jest-expo"
+    
   },
   "dependencies": {
     "@expo/html-elements": "^0.4.2",
